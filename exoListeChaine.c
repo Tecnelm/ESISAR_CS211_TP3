@@ -1,18 +1,29 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include "fontionPrepa.h"
 
 /* Ici, on est obligé d'utiliser la notation struct xxx,
 car la structure s'auto-référence!*/
-typedef struct node {
-		char data ;
-		struct node *link ;
-		} Lnode ;
+
 
 /* Insertion en "tête de liste" */
-void insertionTete(Lnode **ph,char item){
-	/* A compléter */
-	}
+void insertionTete(Lnode **ph, char item){
+    Lnode *newNode = malloc(sizeof(*newNode));
+
+    if(newNode == NULL || ph == NULL){
+        fprintf(stderr,"Chained list empty");
+        exit(EXIT_FAILURE);
+    }
+
+    newNode->data = item;
+
+    newNode->link = (ph);
+    //(**ph).link = newNode;
+
+
+
+}
 
 /* Insertion en "queue de liste" */
 void insertionQueue(Lnode **ph,char item)	{
@@ -30,7 +41,7 @@ void suppressionQueue(Lnode **ph){
 	}
 
 /* Procédure d'affichage de la liste. Ne doit pas être modifiée!!! */
-void listeAffiche(Lnode * ptr){
+void listeAffiche(Lnode  *ptr){
 	if ( NULL == ptr )
 		printf("Liste vide!") ;
 	else 
@@ -40,29 +51,5 @@ void listeAffiche(Lnode * ptr){
 		ptr = ptr->link ;
 		}
 	printf("\n") ;
-	}
+}
 
-/* Programme principal. Ne doit pas être modifié!!! */
-int main(void) {
-	Lnode *tete = NULL ;
-
-	listeAffiche(tete) ;
-	insertionTete(&tete,'a') ;
-	listeAffiche(tete) ;
-	insertionTete(&tete,'c') ;
-	listeAffiche(tete) ;
-	insertionQueue(&tete,'t') ;
-	listeAffiche(tete) ;
-	insertionQueue(&tete,'s') ;
-	listeAffiche(tete) ;
-	suppressionTete(&tete) ;
-	listeAffiche(tete) ;
-	suppressionTete(&tete) ;
-	listeAffiche(tete) ;
-	suppressionQueue(&tete) ;
-	listeAffiche(tete) ;
-	suppressionTete(&tete) ;
-	listeAffiche(tete) ;
-
-   return EXIT_SUCCESS;
-   }	

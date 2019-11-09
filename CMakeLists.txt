@@ -3,4 +3,4 @@ project(ESISAR_CS211_TP3 C)
 
 set(CMAKE_C_STANDARD 90)
 
-add_executable(ESISAR_CS211_TP3 main.c)
+add_executable(ESISAR_CS211_TP3 main.c fontionPrepa.h)
