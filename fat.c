@@ -14,12 +14,18 @@ void initialise_fat() {
     }
     freeblocks = BLOCNUM;
 
-    /*obj = malloc(sizeof(*obj));
-    if(obj == NULL) {
-        fprintf(stderr, "Chained list empty");
-        free(obj);
-        exit(EXIT_FAILURE);
-    }*/
+    //struct objet objTemp;
+
+    struct objet objTemp;
+
+    objTemp.nom[NAMELEN] = "first";
+    objTemp.taille = 1;
+    objTemp.auteur = 0;
+    objTemp.index = 0;
+    objTemp.next = NULL;
+
+    obj = &objTemp;
+
 }
 
 struct objet *rechercher_objet(char *nom){
@@ -49,6 +55,7 @@ struct objet *creer_objet(char *nom, unsigned short auteur,unsigned int taille, 
         obj->nom[NAMELEN] = *nom;
         obj->auteur = auteur;
         obj->taille = taille;
+        obj->next = NULL;
 
         unsigned int nbBlockTemp;
         int indexed;
