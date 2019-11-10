@@ -15,14 +15,14 @@ int main(void) {
     listeAffiche(tete) ;
     insertionQueue(&tete,'s') ;
     listeAffiche(tete) ;
-    /*suppressionTete(&tete) ;
+    suppressionTete(&tete) ;
     listeAffiche(tete) ;
     suppressionTete(&tete) ;
     listeAffiche(tete) ;
     suppressionQueue(&tete) ;
     listeAffiche(tete) ;
     suppressionTete(&tete) ;
-    listeAffiche(tete) ;*/
+    listeAffiche(tete) ;
 
     return EXIT_SUCCESS;
 }

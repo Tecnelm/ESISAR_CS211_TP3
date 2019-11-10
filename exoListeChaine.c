@@ -25,27 +25,68 @@ void insertionTete(Lnode **ph, char item){
 /* Insertion en "queue de liste" */
 void insertionQueue(Lnode **ph,char item)	{
     Lnode *newNode = malloc(sizeof(*newNode));
+    Lnode *lastNode = malloc(sizeof(*lastNode));
 
-    if(newNode == NULL || ph == NULL){
+    if(newNode == NULL || ph == NULL || lastNode == NULL){
         fprintf(stderr,"Chained list empty");
         exit(EXIT_FAILURE);
+    }
+
+    lastNode = *ph;
+    while(lastNode->link !=NULL){
+        lastNode = lastNode->link;
     }
 
     newNode->data = item;
 
     newNode->link = NULL;
-    ph* =
+    lastNode->link = newNode;
+
+    //free(lastNode); //we should free the memory space but it's bug
 }
 
 /* Suppression en "tête de liste" */
 void suppressionTete(Lnode **ph){
-	/* A compléter */
-	}
+    Lnode *firstNode = malloc(sizeof(*firstNode));
+
+    if(firstNode == NULL || ph == NULL){
+        fprintf(stderr,"Chained list empty");
+        exit(EXIT_FAILURE);
+    }
+    firstNode = *ph;
+
+    *ph = firstNode->link;
+    free(firstNode);
+}
 
 /* Suppression en "Queue" de liste" */
 void suppressionQueue(Lnode **ph){
-	/* A compléter */
-	}
+    int indexBeforeLast;
+    indexBeforeLast = 0;
+
+    Lnode *lastNode = malloc(sizeof(*lastNode));
+    Lnode *beforeLastNode = malloc(sizeof(*beforeLastNode));
+
+    if(lastNode == NULL || ph == NULL || beforeLastNode == NULL){
+        fprintf(stderr,"Chained list empty");
+        exit(EXIT_FAILURE);
+    }
+
+    lastNode = *ph;
+    beforeLastNode = *ph;
+
+    while(lastNode->link !=NULL){
+        lastNode = lastNode->link;
+        indexBeforeLast++;
+    }
+    int i;
+    for ( i = 0;  i<(indexBeforeLast-1) ; i++) {
+        beforeLastNode = beforeLastNode->link;
+    }
+    free(lastNode);
+    beforeLastNode->link = NULL;
+
+}
 
 /* Procédure d'affichage de la liste. Ne doit pas être modifiée!!! */
 void listeAffiche(Lnode  *ptr){
