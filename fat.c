@@ -46,7 +46,7 @@ struct objet *creer_objet(char *nom, unsigned short auteur,unsigned int taille, 
             exit(EXIT_FAILURE);
         }
 
-        obj->nom[NAMELEN] = nom;
+        obj->nom[NAMELEN] = *nom;
         obj->auteur = auteur;
         obj->taille = taille;
 
@@ -54,11 +54,14 @@ struct objet *creer_objet(char *nom, unsigned short auteur,unsigned int taille, 
         int indexed;
         signed int lastIndex;
         int i,j;
+        int reste;
+        int indexReste;
 
         nbBlockTemp = nbBlock;
         indexed = 1;
         lastIndex = -1;
-
+        reste = 512%nbBlock;
+        indexReste = 0;
 
         for (i = 0; i < BLOCNUM; ++i) {
             if(!nbBlockTemp){
@@ -68,14 +71,22 @@ struct objet *creer_objet(char *nom, unsigned short auteur,unsigned int taille, 
                         indexed = 0;
                     }
                     for (j = (512*(taille-nbBlockTemp)); j < (512*(taille-nbBlockTemp)+512) ; ++j) {
-                        if(data[j] != NULL)
+                        if(nbBlockTemp > 1)
                             volume[512 * i] = data[j];
-                        else
-                            volume[512 * i] = END;
+                        else {
+                            if(reste < indexReste) {
+                                volume[512 * i] = data[j];
+                                indexReste++;
+                            }
+                            else
+                                volume[512 * i] = 0;
+                        }
                     }
-                    if(lastIndex != -1){
+                    if(lastIndex != -1)
                         FAT[lastIndex] = i;
-                    }
+                    else if((taille-nbBlockTemp) == 0)
+                        FAT[lastIndex] = END;
+
                     lastIndex = i;
                 }
                 nbBlockTemp--;
