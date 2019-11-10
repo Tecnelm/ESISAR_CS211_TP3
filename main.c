@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "fat.c"
+#include "src/fat.h"
 
 int main() {
     char nom[] = "first";
