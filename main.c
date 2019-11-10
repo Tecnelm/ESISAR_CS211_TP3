@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include "fat.c"
 
 int main() {
-    printf("Hello, World!\n");
+    initialise_fat();
+    //printf("%d",FAT[4]);
     return 0;
 }
