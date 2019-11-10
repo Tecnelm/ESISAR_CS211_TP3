@@ -5,96 +5,103 @@ car la structure s'auto-r�f�rence!*/
 
 
 /* Insertion en "t�te de liste" */
-void insertionTete(Lnode **ph, char item){
-    Lnode *newNode = malloc(sizeof(*newNode));
+void insertionTete (Lnode **ph, char item) {
 
-    if(newNode == NULL || ph == NULL){
-        fprintf(stderr,"Chained list empty");
-        exit(EXIT_FAILURE);
-    }
+	Lnode *newNode = malloc(sizeof(*newNode));
 
-    newNode->data = item;
+	if (newNode == NULL || ph == NULL) {
+		fprintf(stderr, "Chained list empty");
+		exit(EXIT_FAILURE);
+	}
 
-    newNode->link = *ph;
-    *ph = newNode;
+	newNode->data = item;
+
+	newNode->link = *ph;
+	*ph = newNode;
 }
 
 /* Insertion en "queue de liste" */
-void insertionQueue(Lnode **ph,char item)	{
-    Lnode *newNode = malloc(sizeof(*newNode));
-    Lnode *lastNode = malloc(sizeof(*lastNode));
+void insertionQueue (Lnode **ph, char item) {
 
-    if(newNode == NULL || ph == NULL || lastNode == NULL){
-        fprintf(stderr,"Chained list empty");
-        exit(EXIT_FAILURE);
-    }
+	Lnode *newNode = malloc(sizeof(*newNode));
+	Lnode *lastNode = malloc(sizeof(*lastNode));
 
-    lastNode = *ph;
-    while(lastNode->link !=NULL){
-        lastNode = lastNode->link;
-    }
+	if (newNode == NULL || ph == NULL || lastNode == NULL) {
+		fprintf(stderr, "Chained list empty");
+		exit(EXIT_FAILURE);
+	}
 
-    newNode->data = item;
+	lastNode = *ph;
+	while (lastNode->link != NULL) {
+		lastNode = lastNode->link;
+	}
 
-    newNode->link = NULL;
-    lastNode->link = newNode;
+	newNode->data = item;
 
-    //free(lastNode); //we should free the memory space but it's bug
+	newNode->link = NULL;
+	lastNode->link = newNode;
+
+	//free(lastNode); //we should free the memory space but it's bug
 }
 
 /* Suppression en "t�te de liste" */
-void suppressionTete(Lnode **ph){
-    Lnode *firstNode = malloc(sizeof(*firstNode));
+void suppressionTete (Lnode **ph) {
 
-    if(firstNode == NULL || ph == NULL){
-        fprintf(stderr,"Chained list empty");
-        exit(EXIT_FAILURE);
-    }
-    firstNode = *ph;
+	Lnode *firstNode = malloc(sizeof(*firstNode));
 
-    *ph = firstNode->link;
-    free(firstNode);
+	if (firstNode == NULL || ph == NULL) {
+		fprintf(stderr, "Chained list empty");
+		exit(EXIT_FAILURE);
+	}
+
+	firstNode = *ph;
+	*ph = firstNode->link;
+	free(firstNode);
 }
 
 /* Suppression en "Queue" de liste" */
-void suppressionQueue(Lnode **ph){
-    int indexBeforeLast;
-    indexBeforeLast = 0;
+void suppressionQueue (Lnode **ph) {
 
-    Lnode *lastNode = malloc(sizeof(*lastNode));
-    Lnode *beforeLastNode = malloc(sizeof(*beforeLastNode));
+	int indexBeforeLast;
+	indexBeforeLast = 0;
 
-    if(lastNode == NULL || ph == NULL || beforeLastNode == NULL){
-        fprintf(stderr,"Chained list empty");
-        exit(EXIT_FAILURE);
-    }
+	Lnode *lastNode = malloc(sizeof(*lastNode));
+	Lnode *beforeLastNode = malloc(sizeof(*beforeLastNode));
 
-    lastNode = *ph;
-    beforeLastNode = *ph;
+	if (lastNode == NULL || ph == NULL || beforeLastNode == NULL) {
+		fprintf(stderr, "Chained list empty");
+		exit(EXIT_FAILURE);
+	}
 
-    while(lastNode->link !=NULL){
-        lastNode = lastNode->link;
-        indexBeforeLast++;
-    }
-    int i;
-    for ( i = 0;  i<(indexBeforeLast-1) ; i++) {
-        beforeLastNode = beforeLastNode->link;
-    }
-    free(lastNode);
-    beforeLastNode->link = NULL;
+	lastNode = *ph;
+	beforeLastNode = *ph;
+
+	while (lastNode->link != NULL) {
+		lastNode = lastNode->link;
+		indexBeforeLast++;
+	}
+	int i;
+	for (i = 0; i < (indexBeforeLast - 1); i++) {
+		beforeLastNode = beforeLastNode->link;
+	}
+	free(lastNode);
+	beforeLastNode->link = NULL;
 
 }
 
 /* Proc�dure d'affichage de la liste. Ne doit pas �tre modifi�e!!! */
-void listeAffiche(Lnode  *ptr){
-	if ( NULL == ptr )
-		printf("Liste vide!") ;
-	else 
-		printf("Contenu de la liste : ") ;
-	while ( NULL != ptr ) 	{
-		printf("%c ",ptr->data);
-		ptr = ptr->link ;
-		}
-	printf("\n") ;
+void listeAffiche (Lnode *ptr) {
+
+	if (NULL == ptr) {
+		printf("Liste vide!");
+	}
+	else {
+		printf("Contenu de la liste : ");
+	}
+	while (NULL != ptr) {
+		printf("%c ", ptr->data);
+		ptr = ptr->link;
+	}
+	printf("\n");
 }
 
