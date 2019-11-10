@@ -9,13 +9,13 @@ int main(void) {
     listeAffiche(tete) ;
     insertionTete(&tete,'a') ;
     listeAffiche(tete) ;
-    /*insertionTete(&tete,'c') ;
+    insertionTete(&tete,'c') ;
     listeAffiche(tete) ;
     insertionQueue(&tete,'t') ;
     listeAffiche(tete) ;
     insertionQueue(&tete,'s') ;
     listeAffiche(tete) ;
-    suppressionTete(&tete) ;
+    /*suppressionTete(&tete) ;
     listeAffiche(tete) ;
     suppressionTete(&tete) ;
     listeAffiche(tete) ;

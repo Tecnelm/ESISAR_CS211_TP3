@@ -18,17 +18,24 @@ void insertionTete(Lnode **ph, char item){
 
     newNode->data = item;
 
-    newNode->link = (ph);
-    //(**ph).link = newNode;
-
-
-
+    newNode->link = *ph;
+    *ph = newNode;
 }
 
 /* Insertion en "queue de liste" */
 void insertionQueue(Lnode **ph,char item)	{
-	/* A compléter */
-	}
+    Lnode *newNode = malloc(sizeof(*newNode));
+
+    if(newNode == NULL || ph == NULL){
+        fprintf(stderr,"Chained list empty");
+        exit(EXIT_FAILURE);
+    }
+
+    newNode->data = item;
+
+    newNode->link = NULL;
+    ph* =
+}
 
 /* Suppression en "tête de liste" */
 void suppressionTete(Lnode **ph){
