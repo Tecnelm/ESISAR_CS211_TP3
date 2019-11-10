@@ -19,7 +19,7 @@ char volume[BLOCSIZE * BLOCNUM ];
 unsigned short FAT[BLOCNUM];
 unsigned short freeblocks;
 
-
+int compareStr(char a[], char b[]);
 /**
 \brief Cette fonction permet :
 D'initialiser le tableau FAT en déclarant tous les blocs libres.
@@ -34,7 +34,7 @@ void initialise_fat();
 \param nom nom de l'objet à rechercher 
 \return pointeur vers l'objet trouvé ou NULL sinon.
 */
-struct objet *rechercher_objet(char *nom);
+struct objet *rechercher_objet(char nom[]);
 
 /** 
 \brief Cette fonction permet de créer un objet en vérifiant qu'aucun objet n'a le même nom dans la liste (pas triée par nom)

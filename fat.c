@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "fat.h"
 #include "math.h"
+#include  <string.h>
 
 /* Ici, on est obligé d'utiliser la notation struct xxx,
 car la structure s'auto-référence!*/
@@ -28,16 +29,32 @@ void initialise_fat() {
 
 }
 
-struct objet *rechercher_objet(char *nom){
+struct objet *rechercher_objet(char nom[]){
 
     while(obj->next != NULL) {
-        obj = obj->next;
-        if (obj->nom == nom) {
+        if (compareStr(obj->nom, nom)) {
             return obj;
         }
+        obj = obj->next;
     }
     return NULL;
 }
+int compareStr(char a[], char b[]){
+    int tailleA = strlen(a);
+    int tailleB = strlen(b);
+    int i;
+
+    if (tailleA != tailleB){
+        return 0;
+    }
+    for (i = 0; i < tailleA; ++i) {
+        if(a[i]!=b[i])
+            return 0;
+    }
+    return 1;
+}
+
+
 struct objet *creer_objet(char *nom, unsigned short auteur,unsigned int taille, char *data){
     int nbBlock;
     nbBlock = (taille/512)+1;
