@@ -18,7 +18,7 @@ void initialise_fat() {
 
     struct objet objTemp;
 
-    objTemp.nom[NAMELEN] = "first";
+    objTemp.nom[NAMELEN] = 'first';
     objTemp.taille = 1;
     objTemp.auteur = 0;
     objTemp.index = 0;
@@ -45,17 +45,18 @@ struct objet *creer_objet(char *nom, unsigned short auteur,unsigned int taille, 
     if(freeblocks>=nbBlock) {
         freeblocks = freeblocks - nbBlock;
 
-        obj = malloc(sizeof(*obj));
+        /*obj = malloc(sizeof(*obj));
         if (obj == NULL) {
             fprintf(stderr, "Chained list empty");
             free(obj);
             exit(EXIT_FAILURE);
-        }
+        }*/
+        struct objet objTemp ;
 
-        obj->nom[NAMELEN] = *nom;
-        obj->auteur = auteur;
-        obj->taille = taille;
-        obj->next = NULL;
+        objTemp.nom[NAMELEN] = *nom;
+        objTemp.auteur = auteur;
+        objTemp.taille = taille;
+        objTemp.next = NULL;
 
         unsigned int nbBlockTemp;
         int indexed;
@@ -74,7 +75,7 @@ struct objet *creer_objet(char *nom, unsigned short auteur,unsigned int taille, 
             if(!nbBlockTemp){
                 if(FAT[i] == FREE){
                     if(indexed){
-                        obj->index = i;
+                        objTemp.index = i;
                         indexed = 0;
                     }
                     for (j = (512*(taille-nbBlockTemp)); j < (512*(taille-nbBlockTemp)+512) ; ++j) {
@@ -100,10 +101,16 @@ struct objet *creer_objet(char *nom, unsigned short auteur,unsigned int taille, 
             }
 
         }
+
+        objTemp.next = obj;
+        obj = &objTemp;
+
+
         exit(EXIT_SUCCESS);
+
     }
     else {
-        fprintf(stderr,"no more place");
+        fprintf(stderr,"no more place or name already exist");
         exit(EXIT_FAILURE);
     }
 }

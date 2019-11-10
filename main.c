@@ -2,7 +2,7 @@
 #include "fat.c"
 
 int main() {
-    char nom[] = "TP3";
+    char nom[] = "first";
     unsigned short auteur = 7;
     char data[] = "je moupel pedro carahol!";
     unsigned int taille = sizeof(data);
@@ -10,10 +10,8 @@ int main() {
 
     struct objet *objTemp;
 
-
-
     initialise_fat();
-    creer_objet( nom,   auteur,  taille,  data);
+    //creer_objet( nom,   auteur,  taille,  data);
 
     objTemp =  rechercher_objet(nom);
     printf("%d",objTemp->taille);
