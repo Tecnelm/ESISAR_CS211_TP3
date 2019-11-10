@@ -1,6 +1,8 @@
 #define BLOCSIZE 512
 #define BLOCNUM 1024
 #define NAMELEN 256
+#define FREE 0xFFFF
+#define END 0xFFFE
 #include <stdio.h>
 
 struct objet
