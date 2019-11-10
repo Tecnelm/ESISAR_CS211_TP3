@@ -1,6 +1,4 @@
-//include <stdio.h>
-#include "fat.h"
-#include "exoListeChaine.c"
+#include "src/exoListeChaine.h"
 
 
 int main(void) {

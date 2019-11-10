@@ -1,13 +1,10 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
-#include "fontionPrepa.h"
+#include "exoListeChaine.h"
 
-/* Ici, on est obligé d'utiliser la notation struct xxx,
-car la structure s'auto-référence!*/
+/* Ici, on est obligï¿½ d'utiliser la notation struct xxx,
+car la structure s'auto-rï¿½fï¿½rence!*/
 
 
-/* Insertion en "tête de liste" */
+/* Insertion en "tï¿½te de liste" */
 void insertionTete(Lnode **ph, char item){
     Lnode *newNode = malloc(sizeof(*newNode));
 
@@ -45,7 +42,7 @@ void insertionQueue(Lnode **ph,char item)	{
     //free(lastNode); //we should free the memory space but it's bug
 }
 
-/* Suppression en "tête de liste" */
+/* Suppression en "tï¿½te de liste" */
 void suppressionTete(Lnode **ph){
     Lnode *firstNode = malloc(sizeof(*firstNode));
 
@@ -88,7 +85,7 @@ void suppressionQueue(Lnode **ph){
 
 }
 
-/* Procédure d'affichage de la liste. Ne doit pas être modifiée!!! */
+/* Procï¿½dure d'affichage de la liste. Ne doit pas ï¿½tre modifiï¿½e!!! */
 void listeAffiche(Lnode  *ptr){
 	if ( NULL == ptr )
 		printf("Liste vide!") ;
