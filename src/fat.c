@@ -29,6 +29,12 @@ void initialise_fat () {
 }
 
 struct objet *rechercher_objet (char nom[]) {
+	char nomTemp[6];
+	int i;
+
+	for ( i = 0; i < 6; ++i) {
+		nomTemp[i] = nom[i];
+	}
 
 	while (obj != NULL) {
 		if (compareStr(obj->nom, nom)) {
