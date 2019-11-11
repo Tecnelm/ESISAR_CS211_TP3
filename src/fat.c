@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <assert.h>
+
 #include "fat.h"
-#include "math.h"
 #include  <string.h>
 
 
@@ -19,8 +18,8 @@ void initialise_fat () {
 
 	struct objet objTemp;
 
-	objTemp.nom[NAMELEN] = 'first';
-	objTemp.taille = 1;
+	strcpy(objTemp.nom,"first");
+	objTemp.taille = 0;
 	objTemp.auteur = 0;
 	objTemp.index = 0;
 	objTemp.next = NULL;
@@ -31,7 +30,7 @@ void initialise_fat () {
 
 struct objet *rechercher_objet (char nom[]) {
 
-	while (obj->next != NULL) {
+	while (obj != NULL) {
 		if (compareStr(obj->nom, nom)) {
 			return obj;
 		}
@@ -74,7 +73,8 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 		}*/
 		struct objet objTemp;
 
-		objTemp.nom[NAMELEN] = *nom;
+		//objTemp.nom[NAMELEN] = nom;
+		strcpy(objTemp.nom,nom);
 		objTemp.auteur = auteur;
 		objTemp.taille = taille;
 		objTemp.next = NULL;
