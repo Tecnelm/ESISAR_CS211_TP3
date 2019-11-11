@@ -19,7 +19,7 @@ char volume[BLOCSIZE * BLOCNUM ];
 unsigned short FAT[BLOCNUM];
 unsigned short freeblocks;
 
-int compareStr(char a[], char b[]);
+int compareStr(char a[], char* b[]);
 /**
 \brief Cette fonction permet :
 D'initialiser le tableau FAT en déclarant tous les blocs libres.

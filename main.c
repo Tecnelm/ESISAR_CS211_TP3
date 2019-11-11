@@ -4,12 +4,11 @@
 
 int main () {
 
-	char nom[] = "first";
+	char nom[] = "fist";
 
 	unsigned short auteur = 7;
 	char data[] = "je moupel pedro carahol!";
 	unsigned int taille = sizeof(data);
-
 
 	struct objet *objTemp;
 

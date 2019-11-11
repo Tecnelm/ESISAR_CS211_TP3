@@ -16,39 +16,38 @@ void initialise_fat () {
 	}
 	freeblocks = BLOCNUM;
 
-	struct objet objTemp;
+	struct objet* objTemp;
+	//*objTemp = malloc(sizeof(*objTemp))
 
-	strcpy(objTemp.nom,"first");
-	objTemp.taille = 0;
-	objTemp.auteur = 0;
-	objTemp.index = 0;
-	objTemp.next = NULL;
+	strcpy(objTemp->nom,"first");
+	objTemp->taille = 0;
+	objTemp->auteur = 0;
+	objTemp->index = 0;
+	objTemp->next = NULL;
 
-	obj = &objTemp;
+	obj = objTemp;
 
 }
 
 struct objet *rechercher_objet (char nom[]) {
-	char nomTemp[6];
-	int i;
 
-	for ( i = 0; i < 6; ++i) {
-		nomTemp[i] = nom[i];
-	}
+	struct objet* objTemp;
+	objTemp = obj;
 
-	while (obj != NULL) {
-		if (compareStr(obj->nom, nom)) {
-			return obj;
+	while (objTemp != NULL) {
+		if (strcmp(objTemp->nom, nom) == 0) {
+			return objTemp;
 		}
-		obj = obj->next;
+		objTemp = objTemp->next;
 	}
+	printf( "Non-inexistent object");
 	return NULL;
 }
 
-int compareStr (char a[], char b[]) {
+/*int compareStr (char a[], char* b[]) {
 
-	int tailleA = strlen(a);
-	int tailleB = strlen(b);
+	int tailleA = sizeof(a);
+	int tailleB = sizeof(b);
 	int i;
 
 	if (tailleA != tailleB) {
@@ -60,7 +59,7 @@ int compareStr (char a[], char b[]) {
 		}
 	}
 	return 1;
-}
+}*/
 
 
 struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille, char *data) {
