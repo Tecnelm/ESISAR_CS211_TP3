@@ -14,8 +14,8 @@ int main () {
 	initialise_fat();
 
 
-	//objTemp = rechercher_objet("first");
-	objTemp = creer_objet(nom, auteur, taille, data);
+	creer_objet(nom, auteur, taille, data);
+	objTemp = rechercher_objet("second");
 
 	printf("nom : %s \n", objTemp->nom);
 	printf("taille : %u \n", objTemp->taille);

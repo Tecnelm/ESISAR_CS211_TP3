@@ -73,6 +73,7 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 
 		if(objTemp == NULL ){
 			fprintf(stderr,"error malloc");
+			free(objTemp);
 			exit(EXIT_FAILURE);
 		}
 
