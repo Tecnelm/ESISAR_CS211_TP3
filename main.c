@@ -16,7 +16,11 @@ int main () {
 	//creer_objet(nom, auteur, taille, data);
 
 	objTemp = rechercher_objet("first");
-	printf("%s", objTemp->nom);
+
+	printf("nom : %s \n", objTemp->nom);
+	printf("taille : %u \n", objTemp->taille);
+	printf("auteur : %u \n", objTemp->auteur);
+	printf("index : %u \n", objTemp->index);
 
 
 	return 0;

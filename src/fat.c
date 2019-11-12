@@ -40,7 +40,7 @@ struct objet *rechercher_objet (char nom[]) {
 		}
 		objTemp = objTemp->next;
 	}
-	printf( "Non-inexistent object");
+	fprintf(stderr, "Non-inexistent object \n");
 	return NULL;
 }
 
