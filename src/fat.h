@@ -1,6 +1,6 @@
 #define BLOCSIZE 512
 #define BLOCNUM 1024
-#define NAMELEN 6
+#define NAMELEN 256
 #define FREE 0xFFFF
 #define END 0xFFFE
 #include <stdio.h>
@@ -35,6 +35,7 @@ void initialise_fat();
 \return pointeur vers l'objet trouvé ou NULL sinon.
 */
 struct objet *rechercher_objet(char nom[]);
+int rechercher_objet_bool (char nom[]);
 
 /** 
 \brief Cette fonction permet de créer un objet en vérifiant qu'aucun objet n'a le même nom dans la liste (pas triée par nom)

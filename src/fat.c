@@ -44,6 +44,20 @@ struct objet *rechercher_objet (char nom[]) {
 	return NULL;
 }
 
+int rechercher_objet_bool (char nom[]) {
+
+	struct objet* objTemp;
+	objTemp = obj;
+
+	while (objTemp != NULL) {
+		if (strcmp(objTemp->nom, nom) == 0) {
+			return 0;
+		}
+		objTemp = objTemp->next;
+	}
+	fprintf(stderr, "Non-inexistent object \n");
+	return 1;
+}
 
 
 struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille, char *data) {
@@ -54,19 +68,20 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 	if (freeblocks >= nbBlock) {
 		freeblocks = freeblocks - nbBlock;
 
-		/*obj = malloc(sizeof(*obj));
-		if (obj == NULL) {
-			fprintf(stderr, "Chained list empty");
-			free(obj);
-			exit(EXIT_FAILURE);
-		}*/
-		struct objet objTemp;
+		struct objet* objTemp;
+		objTemp = malloc(sizeof(*objTemp));
 
-		//objTemp.nom[NAMELEN] = nom;
-		strcpy(objTemp.nom,nom);
-		objTemp.auteur = auteur;
-		objTemp.taille = taille;
-		objTemp.next = NULL;
+		if(objTemp == NULL ){
+			fprintf(stderr,"error malloc");
+			exit(EXIT_FAILURE);
+		}
+
+		objTemp->auteur = auteur;
+		objTemp->taille = taille;
+		obj->next = objTemp;
+		objTemp->next = NULL;
+		strcpy(objTemp->nom, nom);
+
 
 		unsigned int nbBlockTemp;
 		int indexed;
@@ -85,7 +100,7 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 			if (!nbBlockTemp) {
 				if (FAT[i] == FREE) {
 					if (indexed) {
-						objTemp.index = i;
+						objTemp->index = i;
 						indexed = 0;
 					}
 					for (j = (512 * (taille - nbBlockTemp)); j < (512 * (taille - nbBlockTemp) + 512); ++j) {
@@ -116,8 +131,7 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 
 		}
 
-		objTemp.next = obj;
-		obj = &objTemp;
+		return objTemp;
 
 		exit(EXIT_SUCCESS);
 
