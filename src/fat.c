@@ -104,7 +104,7 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 		strcpy(objTemp->nom, nom);
 
 
-		unsigned int nbBlockTemp;
+		int nbBlockTemp;
 		int indexed;
 		signed int lastIndex;
 		int i, j;
@@ -118,7 +118,7 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 		indexReste = 0;
 
 		for (i = 0; i < BLOCNUM; ++i) {
-			if (nbBlockTemp) {
+			if (nbBlockTemp != -1) {
 				if (FAT[i] == FREE) {
 					if (indexed) {
 						objTemp->index = i;
@@ -138,10 +138,10 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 							}
 						}
 					}
-					if (lastIndex != -1) {
+					if (lastIndex != -1 && nbBlockTemp != 0) {
 						FAT[lastIndex] = i;
 					}
-					else if ((nbBlock - nbBlockTemp) == 0) {
+					else {
 						FAT[lastIndex] = END;
 					}
 
@@ -163,7 +163,7 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 	}
 }
 
-int supprimer_objet(char *nom){
+/*int supprimer_objet(char *nom){
 	struct objet* objNom;
 	struct objet* objBeforeNom;
 	struct objet* objAfterNom;
@@ -191,6 +191,17 @@ int supprimer_objet(char *nom){
 		}
 	}
 
+	unsigned int nbBlock;
+	nbBlock = (obj->taille / 512) + 1;
+
+	freeblocks = freeblocks - nbBlock;
+
+	unsigned short indexTemp = obj->index;
+	int k;
+	for ( k = 0; k == END ; ++k) {
+		FAT[indexTemp] =
+	}
+
 
 
 	int i;
@@ -205,4 +216,4 @@ int supprimer_objet(char *nom){
 	objBeforeNom->next = objAfterNom;
 	free(objNom);
 
-}
+}*/
