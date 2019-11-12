@@ -44,22 +44,6 @@ struct objet *rechercher_objet (char nom[]) {
 	return NULL;
 }
 
-/*int compareStr (char a[], char* b[]) {
-
-	int tailleA = sizeof(a);
-	int tailleB = sizeof(b);
-	int i;
-
-	if (tailleA != tailleB) {
-		return 0;
-	}
-	for (i = 0; i < tailleA; ++i) {
-		if (a[i] != b[i]) {
-			return 0;
-		}
-	}
-	return 1;
-}*/
 
 
 struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille, char *data) {
