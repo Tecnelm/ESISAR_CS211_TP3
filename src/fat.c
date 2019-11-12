@@ -17,7 +17,13 @@ void initialise_fat () {
 	freeblocks = BLOCNUM;
 
 	struct objet* objTemp;
-	//*objTemp = malloc(sizeof(*objTemp))
+	objTemp = malloc(sizeof(*objTemp));
+
+	if(objTemp == NULL ){
+		fprintf(stderr,"error malloc");
+		free(objTemp);
+		exit(EXIT_FAILURE);
+	}
 
 	strcpy(objTemp->nom,"first");
 	objTemp->taille = 0;
@@ -29,9 +35,16 @@ void initialise_fat () {
 
 }
 
-struct objet *rechercher_objet (char nom[]) {
+struct objet *rechercher_objet (char *nom) {
 
 	struct objet* objTemp;
+	objTemp = malloc(sizeof(*objTemp));
+
+	if(objTemp == NULL ){
+		fprintf(stderr,"error malloc");
+		free(objTemp);
+		exit(EXIT_FAILURE);
+	}
 	objTemp = obj;
 
 	while (objTemp != NULL) {
@@ -44,9 +57,16 @@ struct objet *rechercher_objet (char nom[]) {
 	return NULL;
 }
 
-int rechercher_objet_bool (char nom[]) {
+int rechercher_objet_bool (char* nom) {
 
 	struct objet* objTemp;
+	objTemp = malloc(sizeof(*objTemp));
+
+	if(objTemp == NULL ){
+		fprintf(stderr,"error malloc");
+		free(objTemp);
+		exit(EXIT_FAILURE);
+	}
 	objTemp = obj;
 
 	while (objTemp != NULL) {
@@ -55,17 +75,17 @@ int rechercher_objet_bool (char nom[]) {
 		}
 		objTemp = objTemp->next;
 	}
-	fprintf(stderr, "Non-inexistent object \n");
+
 	return 1;
 }
 
 
 struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille, char *data) {
 
-	int nbBlock;
+	unsigned int nbBlock;
 	nbBlock = (taille / 512) + 1;
 
-	if (freeblocks >= nbBlock) {
+	if (freeblocks >= nbBlock && rechercher_objet_bool(nom)) {
 		freeblocks = freeblocks - nbBlock;
 
 		struct objet* objTemp;
@@ -94,23 +114,23 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 		nbBlockTemp = nbBlock;
 		indexed = 1;
 		lastIndex = -1;
-		reste = 512 % nbBlock;
+		reste = strlen(data) % 512;
 		indexReste = 0;
 
 		for (i = 0; i < BLOCNUM; ++i) {
-			if (!nbBlockTemp) {
+			if (nbBlockTemp) {
 				if (FAT[i] == FREE) {
 					if (indexed) {
 						objTemp->index = i;
 						indexed = 0;
 					}
-					for (j = (512 * (taille - nbBlockTemp)); j < (512 * (taille - nbBlockTemp) + 512); ++j) {
+					for (j = (512 * (nbBlock - nbBlockTemp)); j < (512 * (nbBlock - nbBlockTemp) + 512); ++j) {
 						if (nbBlockTemp > 1) {
-							volume[512 * i] = data[j];
+							volume[(512 * i)+(j-(512 * (nbBlock - nbBlockTemp)))] = data[j];
 						}
 						else {
-							if (reste < indexReste) {
-								volume[512 * i] = data[j];
+							if (reste >= indexReste) {
+								volume[(512 * i)+(j-(512 * (nbBlock - nbBlockTemp)))] = data[j];
 								indexReste++;
 							}
 							else {
@@ -121,7 +141,7 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 					if (lastIndex != -1) {
 						FAT[lastIndex] = i;
 					}
-					else if ((taille - nbBlockTemp) == 0) {
+					else if ((nbBlock - nbBlockTemp) == 0) {
 						FAT[lastIndex] = END;
 					}
 
