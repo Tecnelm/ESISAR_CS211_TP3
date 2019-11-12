@@ -163,25 +163,26 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 	}
 }
 
-/*int supprimer_objet(char *nom){
+int supprimer_objet(char *nom){
 	struct objet* objNom;
 	struct objet* objBeforeNom;
 	struct objet* objAfterNom;
 	objNom = malloc(sizeof(*objNom));
 	objBeforeNom = malloc(sizeof(*objAfterNom));
-	objBeforeNom = malloc(sizeof(*objAfterNom));
+	objAfterNom = malloc(sizeof(*objAfterNom));
 
 	if(objNom == NULL || objBeforeNom == NULL|| objAfterNom == NULL){
 		fprintf(stderr,"error malloc");
 		free(objNom);
 		free(objBeforeNom);
+		free(objAfterNom);
 		exit(EXIT_FAILURE);
 	}
 	objNom = obj;
 
 	int indexObjNom;
 	indexObjNom = 0;
-	if(rechercher_objet_bool(nom) && strcmp(nom,"first") == 1){
+	if(rechercher_objet_bool(nom) == 0 && strcmp(nom,"first") != 0){
 		while (objNom != NULL) {
 			indexObjNom++;
 			if (strcmp(objNom->nom, nom) == 0) {
@@ -190,17 +191,30 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 			objNom = objNom->next;
 		}
 	}
+	else{
+		fprintf(stderr,"%s does not exist or you are trying to delete the initial object 'first'", nom);
+	}
 
 	unsigned int nbBlock;
-	nbBlock = (obj->taille / 512) + 1;
+	nbBlock = (objNom->taille / 512) + 1;
 
-	freeblocks = freeblocks - nbBlock;
+	freeblocks = freeblocks + nbBlock;
 
 	unsigned short indexTemp = obj->index;
+	unsigned short lastIndexTemp;
 	int k;
-	for ( k = 0; k == END ; ++k) {
-		FAT[indexTemp] =
+	int l;
+	for ( k = 0; k < (nbBlock) ; ++k) {
+		if (indexTemp != END) {
+			for (l = 512 * indexTemp; l < (512 * indexTemp + 512); l++) {
+				volume[l] = 0;
+			}
+			lastIndexTemp = indexTemp;
+			indexTemp = FAT[indexTemp];
+		}
+		FAT[lastIndexTemp] = FREE;
 	}
+
 
 
 
@@ -215,5 +229,6 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 
 	objBeforeNom->next = objAfterNom;
 	free(objNom);
+	exit(EXIT_SUCCESS);
 
-}*/
+}
