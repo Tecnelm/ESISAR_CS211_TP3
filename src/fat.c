@@ -162,3 +162,47 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 		exit(EXIT_FAILURE);
 	}
 }
+
+int supprimer_objet(char *nom){
+	struct objet* objNom;
+	struct objet* objBeforeNom;
+	struct objet* objAfterNom;
+	objNom = malloc(sizeof(*objNom));
+	objBeforeNom = malloc(sizeof(*objAfterNom));
+	objBeforeNom = malloc(sizeof(*objAfterNom));
+
+	if(objNom == NULL || objBeforeNom == NULL|| objAfterNom == NULL){
+		fprintf(stderr,"error malloc");
+		free(objNom);
+		free(objBeforeNom);
+		exit(EXIT_FAILURE);
+	}
+	objNom = obj;
+
+	int indexObjNom;
+	indexObjNom = 0;
+	if(rechercher_objet_bool(nom) && strcmp(nom,"first") == 1){
+		while (objNom != NULL) {
+			indexObjNom++;
+			if (strcmp(objNom->nom, nom) == 0) {
+				break;
+			}
+			objNom = objNom->next;
+		}
+	}
+
+
+
+	int i;
+	int j;
+	for (i = 0; i < (indexObjNom-1); ++i) {
+		objBeforeNom = objBeforeNom->next;
+	}
+	for (j = 0; j < (indexObjNom+1); ++j) {
+		objAfterNom = objAfterNom->next;
+	}
+
+	objBeforeNom->next = objAfterNom;
+	free(objNom);
+
+}
