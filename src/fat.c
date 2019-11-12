@@ -179,6 +179,9 @@ int supprimer_objet(char *nom){
 		exit(EXIT_FAILURE);
 	}
 	objNom = obj;
+	objBeforeNom = obj;
+	objAfterNom = obj;
+
 
 	int indexObjNom;
 	indexObjNom = 0;
@@ -220,15 +223,16 @@ int supprimer_objet(char *nom){
 
 	int i;
 	int j;
-	for (i = 0; i < (indexObjNom-1); ++i) {
+	for (i = 0; i < (indexObjNom-2); ++i) {
 		objBeforeNom = objBeforeNom->next;
 	}
-	for (j = 0; j < (indexObjNom+1); ++j) {
+	for (j = 0; j < (indexObjNom); ++j) {
 		objAfterNom = objAfterNom->next;
 	}
 
 	objBeforeNom->next = objAfterNom;
 	free(objNom);
+	free(objAfterNom);
 	exit(EXIT_SUCCESS);
 
 }
