@@ -1,9 +1,11 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #define BLOCSIZE 512
 #define BLOCNUM 1024
 #define NAMELEN 256
 #define FREE 0xFFFF
 #define END 0xFFFE
-#include <stdio.h>
 
 struct objet
 {
@@ -71,4 +73,7 @@ Attention à la taille !!!!!!!!!!!!!!
 */
 
 int lire_objet(struct objet *o,char **data);
+
+
+
 

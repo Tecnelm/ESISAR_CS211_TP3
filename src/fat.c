@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <stdio.h>
 
 #include "fat.h"
@@ -41,7 +40,6 @@ void initialise_fat () {
 	freeblocks = BLOCNUM;
 	objTemp = new_object();
 	strcpy(objTemp->nom, "first");
-
 	objTemp->taille = 0;
 	objTemp->auteur = 0;
 	objTemp->index = 0;
@@ -239,5 +237,70 @@ void printObject (struct objet *obj) {
 		printf("auteur : %u \n", obj->auteur);
 		printf("index : %u \n", obj->index);
 	}
+}
+
+void supprimer_tout () {
+
+	struct objet *objetToDelete;
+	struct objet *currentObjet;
+	unsigned int nbBlock;
+	unsigned short lastIndexTemp;
+	unsigned short indexTemp;
+	int k;
+	int l;
+	currentObjet = obj;
+	while (currentObjet != NULL) {
+		nbBlock = (currentObjet->taille / 512) + 1;
+
+
+		indexTemp = currentObjet->index;
+		if (strcmp(currentObjet->nom, "first")) {
+			for (k = 0; k < (nbBlock); ++k) {
+				if (indexTemp != END) {
+					for (l = 512 * indexTemp; l < (512 * indexTemp + 512); l++) {
+						volume[l] = 0;
+					}
+					lastIndexTemp = indexTemp;
+					indexTemp = FAT[indexTemp];
+				}
+				FAT[lastIndexTemp] = FREE;
+			}
+			freeblocks = freeblocks + nbBlock;
+		}
+
+		objetToDelete = currentObjet;
+		currentObjet = currentObjet->next;
+		free(objetToDelete);
+	}
+
+}
+
+int lire_objet (struct objet *o, char **data) {
+	char * newData;
+
+	newData = malloc(o->taille);
+	if (newData == NULL) {
+		fprintf(stderr, "error malloc");
+		free(data);
+		exit(EXIT_FAILURE);
+	}
+
+	int i;
+	int l;
+	int indexData;
+	int nbBlock;
+
+	indexData = o->index;
+	nbBlock = (o->taille / 512) + 1;
+
+	for (i = 0; i < nbBlock; i++) {
+		for (l = 0; l < BLOCSIZE; l++) {
+			newData[l] = volume[l + (indexData * 512)];
+		}
+
+		indexData = o->index;
+	}
+	*data = newData;
+
 }
 
