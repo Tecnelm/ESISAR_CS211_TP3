@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "src/fat.h"
 
-
 int main () {
 	char nomToFind[] = "first";
 	char nom[] = "second";
@@ -17,18 +16,17 @@ int main () {
 	objTemp = rechercher_objet("second");
 
 
-	printf("nom : %s \n", objTemp->nom);
-	printf("taille : %u \n", objTemp->taille);
-	printf("auteur : %u \n", objTemp->auteur);
-	printf("index : %u \n", objTemp->index);
+	printObject(objTemp);
 
 	objTemp = rechercher_objet("first");
 
-	printf("nom : %s \n", objTemp->nom);
-	printf("taille : %u \n", objTemp->taille);
-	printf("auteur : %u \n", objTemp->auteur);
-	printf("index : %u \n", objTemp->index);
+	printObject(objTemp);
 	supprimer_objet(nom);
+
+	objTemp = rechercher_objet(nom);
+	printObject(objTemp);
+	objTemp = rechercher_objet("first");
+	printObject(objTemp);
 
 	return 0;
 }
