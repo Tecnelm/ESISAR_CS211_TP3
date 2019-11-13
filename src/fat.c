@@ -8,6 +8,19 @@
 /* Ici, on est oblig� d'utiliser la notation struct xxx,
 car la structure s'auto-r�f�rence!*/
 
+struct objet *new_object () {
+
+	struct objet *objTemp;
+	objTemp = malloc(sizeof(*objTemp));
+
+	if (objTemp == NULL) {
+		fprintf(stderr, "error malloc");
+		free(objTemp);
+		exit(EXIT_FAILURE);
+	}
+	return objTemp;
+}
+
 void initialise_fat () {
 
 	int i;
@@ -16,16 +29,10 @@ void initialise_fat () {
 	}
 	freeblocks = BLOCNUM;
 
-	struct objet* objTemp;
-	objTemp = malloc(sizeof(*objTemp));
+	struct objet *objTemp;
+	objTemp = new_object();
 
-	if(objTemp == NULL ){
-		fprintf(stderr,"error malloc");
-		free(objTemp);
-		exit(EXIT_FAILURE);
-	}
-
-	strcpy(objTemp->nom,"first");
+	strcpy(objTemp->nom, "first");
 	objTemp->taille = 0;
 	objTemp->auteur = 0;
 	objTemp->index = 0;
@@ -37,11 +44,11 @@ void initialise_fat () {
 
 struct objet *rechercher_objet (char *nom) {
 
-	struct objet* objTemp;
+	struct objet *objTemp;
 	objTemp = malloc(sizeof(*objTemp));
 
-	if(objTemp == NULL ){
-		fprintf(stderr,"error malloc");
+	if (objTemp == NULL) {
+		fprintf(stderr, "error malloc");
 		free(objTemp);
 		exit(EXIT_FAILURE);
 	}
@@ -57,13 +64,13 @@ struct objet *rechercher_objet (char *nom) {
 	return NULL;
 }
 
-int rechercher_objet_bool (char* nom) {
+int rechercher_objet_bool (char *nom) {
 
-	struct objet* objTemp;
+	struct objet *objTemp;
 	objTemp = malloc(sizeof(*objTemp));
 
-	if(objTemp == NULL ){
-		fprintf(stderr,"error malloc");
+	if (objTemp == NULL) {
+		fprintf(stderr, "error malloc");
 		free(objTemp);
 		exit(EXIT_FAILURE);
 	}
@@ -88,11 +95,11 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 	if (freeblocks >= nbBlock && rechercher_objet_bool(nom)) {
 		freeblocks = freeblocks - nbBlock;
 
-		struct objet* objTemp;
+		struct objet *objTemp;
 		objTemp = malloc(sizeof(*objTemp));
 
-		if(objTemp == NULL ){
-			fprintf(stderr,"error malloc");
+		if (objTemp == NULL) {
+			fprintf(stderr, "error malloc");
 			free(objTemp);
 			exit(EXIT_FAILURE);
 		}
@@ -126,11 +133,11 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 					}
 					for (j = (512 * (nbBlock - nbBlockTemp)); j < (512 * (nbBlock - nbBlockTemp) + 512); ++j) {
 						if (nbBlockTemp > 1) {
-							volume[(512 * i)+(j-(512 * (nbBlock - nbBlockTemp)))] = data[j];
+							volume[(512 * i) + (j - (512 * (nbBlock - nbBlockTemp)))] = data[j];
 						}
 						else {
 							if (reste >= indexReste) {
-								volume[(512 * i)+(j-(512 * (nbBlock - nbBlockTemp)))] = data[j];
+								volume[(512 * i) + (j - (512 * (nbBlock - nbBlockTemp)))] = data[j];
 								indexReste++;
 							}
 							else {
@@ -157,35 +164,33 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 		exit(EXIT_SUCCESS);
 
 	}
-	else {
-		fprintf(stderr, "no more place or name already exist");
-		exit(EXIT_FAILURE);
-	}
+
+	fprintf(stderr, "no more place or name already exist");
+	return NULL;
+
 }
 
-int supprimer_objet(char *nom){
-	struct objet* objNom;
-	struct objet* objBeforeNom;
-	struct objet* objAfterNom;
-	objNom = malloc(sizeof(*objNom));
-	objBeforeNom = malloc(sizeof(*objAfterNom));
-	objAfterNom = malloc(sizeof(*objAfterNom));
+int supprimer_objet (char *nom) {
 
-	if(objNom == NULL || objBeforeNom == NULL|| objAfterNom == NULL){
-		fprintf(stderr,"error malloc");
+	struct objet *objNom;
+	struct objet *objBeforeNom;
+	objNom = malloc(sizeof(*objNom));
+	objBeforeNom = malloc(sizeof(*objBeforeNom));
+
+
+	if (objNom == NULL || objBeforeNom == NULL) {
+		fprintf(stderr, "error malloc");
 		free(objNom);
 		free(objBeforeNom);
-		free(objAfterNom);
 		exit(EXIT_FAILURE);
 	}
 	objNom = obj;
 	objBeforeNom = obj;
-	objAfterNom = obj;
 
 
 	int indexObjNom;
 	indexObjNom = 0;
-	if(rechercher_objet_bool(nom) == 0 && strcmp(nom,"first") != 0){
+	if (rechercher_objet_bool(nom) == 0 && strcmp(nom, "first") != 0) {
 		while (objNom != NULL) {
 			indexObjNom++;
 			if (strcmp(objNom->nom, nom) == 0) {
@@ -194,8 +199,8 @@ int supprimer_objet(char *nom){
 			objNom = objNom->next;
 		}
 	}
-	else{
-		fprintf(stderr,"%s does not exist or you are trying to delete the initial object 'first'", nom);
+	else {
+		fprintf(stderr, "%s does not exist or you are trying to delete the initial object 'first'", nom);
 	}
 
 	unsigned int nbBlock;
@@ -207,7 +212,7 @@ int supprimer_objet(char *nom){
 	unsigned short lastIndexTemp;
 	int k;
 	int l;
-	for ( k = 0; k < (nbBlock) ; ++k) {
+	for (k = 0; k < (nbBlock); ++k) {
 		if (indexTemp != END) {
 			for (l = 512 * indexTemp; l < (512 * indexTemp + 512); l++) {
 				volume[l] = 0;
@@ -219,20 +224,14 @@ int supprimer_objet(char *nom){
 	}
 
 
-
-
 	int i;
 	int j;
-	for (i = 0; i < (indexObjNom-2); ++i) {
+	for (i = 0; i < (indexObjNom - 2); ++i) {
 		objBeforeNom = objBeforeNom->next;
 	}
-	for (j = 0; j < (indexObjNom); ++j) {
-		objAfterNom = objAfterNom->next;
-	}
 
-	objBeforeNom->next = objAfterNom;
+	objBeforeNom->next = objNom->next;
 	free(objNom);
-	free(objAfterNom);
 	exit(EXIT_SUCCESS);
 
 }
