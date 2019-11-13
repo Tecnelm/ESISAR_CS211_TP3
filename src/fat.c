@@ -259,9 +259,10 @@ void supprimer_tout () {
 }
 
 int lire_objet (struct objet *o, char **data) {
+	char * newData;
 
-	*data = malloc(o->taille);
-	if (*data == NULL) {
+	newData = malloc(o->taille);
+	if (newData == NULL) {
 		fprintf(stderr, "error malloc");
 		free(data);
 		exit(EXIT_FAILURE);
@@ -277,11 +278,12 @@ int lire_objet (struct objet *o, char **data) {
 
 	for (i = 0; i < nbBlock; i++) {
 		for (l = 0; l < BLOCSIZE; l++) {
-			data[l] = volume[l + (indexData * 512)];
+			newData[l] = volume[l + (indexData * 512)];
 		}
 
 		indexData = o->index;
 	}
+	*data = newData;
 
 }
 
