@@ -277,6 +277,10 @@ void supprimer_tout () {
 
 int lire_objet (struct objet *o, char **data) {
 	char * newData;
+	int i;
+	int l;
+	int indexData;
+	int nbBlock;
 
 	newData = malloc(o->taille);
 	if (newData == NULL) {
@@ -284,11 +288,6 @@ int lire_objet (struct objet *o, char **data) {
 		free(data);
 		exit(EXIT_FAILURE);
 	}
-
-	int i;
-	int l;
-	int indexData;
-	int nbBlock;
 
 	indexData = o->index;
 	nbBlock = (o->taille / 512) + 1;
@@ -301,6 +300,6 @@ int lire_objet (struct objet *o, char **data) {
 		indexData = o->index;
 	}
 	*data = newData;
-
+	return EXIT_SUCCESS;
 }
 

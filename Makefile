@@ -3,7 +3,7 @@ CFLAGS = -Wall
 OUT = out
 EXEC = TP2
 DEBUG = no
-TEST = yes
+TEST = no
 
 OBJDIR = obj
 SRCDIR = src
