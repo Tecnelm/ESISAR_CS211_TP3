@@ -13,8 +13,9 @@ int main () {
 
 	struct objet *objTemp;
 
+
 	initialise_fat();
-	creer_objet(nom, auteur, taille, data);
+	addNewObject(nom, auteur, taille, data);
 	objTemp = rechercher_objet("second");
 
 
@@ -24,7 +25,7 @@ int main () {
 
 	printObject(objTemp);
 	objTemp = rechercher_objet(nom);
-	lire_objet(objTemp, &readData);
+	readObject(objTemp, &readData);
 	//supprimer_objet(nom);
 
 //	printObject(objTemp);

@@ -7,6 +7,8 @@
 /* Ici, on est oblig� d'utiliser la notation struct xxx,
 car la structure s'auto-r�f�rence!*/
 
+typedef struct object object;
+
 struct objet *obj;
 
 char volume[BLOCSIZE * BLOCNUM];
@@ -79,87 +81,83 @@ int objectNotExist (char *nom) {
 	return 1;
 }
 
+int addNewObject (char *nom, unsigned short auteur, unsigned int taille, char *data) {
 
-struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille, char *data) {
+	struct objet *newObject;
+	unsigned int blocUse;
+	unsigned rest;
+	unsigned int indexFat;
+	unsigned int indexWriteBloc;
 
-	struct objet *objTemp;
-	unsigned int nbBlock;
+	blocUse = (taille / 512) + 1;
+	if (!(freeblocks >= blocUse)) {
+		fprintf(stderr, "ERROR NO PLACE LEFT\n");
+		return EXIT_FAILURE;
+	}
+	else if (!objectNotExist(nom)) {
+		fprintf(stderr, "OBJECT ALREADY EXIST\n");
+		return EXIT_FAILURE;
+	}
+	newObject = malloc(sizeof(struct objet));
 
-	int nbBlockTemp;
-	int indexed;
-	signed int lastIndex;
-	unsigned int i, j;
-	unsigned long reste;
-	int indexReste;
-
-	nbBlock = (taille / 512) + 1;
-
-	if (freeblocks >= nbBlock && objectNotExist(nom)) {
-		freeblocks = freeblocks - nbBlock;
-
-		objTemp = malloc(sizeof(*objTemp));
-
-		if (objTemp == NULL) {
-			fprintf(stderr, "error malloc");
-			free(objTemp);
-			exit(EXIT_FAILURE);
-		}
-
-		objTemp->auteur = auteur;
-		objTemp->taille = taille;
-		obj->next = objTemp;
-		objTemp->next = NULL;
-		strcpy(objTemp->nom, nom);
-
-		nbBlockTemp = nbBlock;
-		indexed = 1;
-		lastIndex = -1;
-		reste = strlen(data) % 512;
-		indexReste = 0;
-
-		for (i = 0; i < BLOCNUM; ++i) {
-			if (nbBlockTemp != -1) {
-				if (FAT[i] == FREE) {
-					if (indexed) {
-						objTemp->index = i;
-						indexed = 0;
-					}
-					for (j = (512 * (nbBlock - nbBlockTemp)); j < (512 * (nbBlock - nbBlockTemp) + 512); ++j) {
-						if (nbBlockTemp > 1) {
-							volume[(512 * i) + (j - (512 * (nbBlock - nbBlockTemp)))] = data[j];
-						}
-						else {
-							if (reste >= indexReste) {
-								volume[(512 * i) + (j - (512 * (nbBlock - nbBlockTemp)))] = data[j];
-								indexReste++;
-							}
-							else {
-								volume[512 * i] = 0;
-							}
-						}
-					}
-					if (lastIndex != -1 && nbBlockTemp != 0) {
-						FAT[lastIndex] = i;
-					}
-					else {
-						FAT[lastIndex] = END;
-					}
-
-					lastIndex = i;
-				}
-				nbBlockTemp--;
-			}
-
-		}
-
-		return objTemp;
-
+	if (newObject == NULL) {
+		fprintf(stderr, "ALLOCATION MEMORY ERROR\n");
+		free(newObject);
+		exit(EXIT_FAILURE);
 	}
 
-	fprintf(stderr, "NO PLACE AVAILABLE OR NAME ALREADY USE\n");
-	return NULL;
+	newObject->taille = taille;
+	newObject->auteur = auteur;
+	strcpy(newObject->nom, nom);
+	newObject->next = NULL;
+	insertObject(obj, newObject);
 
+	rest = taille % 512;
+	indexFat = 0;
+
+	while (indexFat < BLOCNUM && FAT[indexFat] != FREE)
+		indexFat++;
+	newObject->index = indexFat;
+
+
+	for (indexWriteBloc = 0; indexWriteBloc < blocUse - 1; indexWriteBloc++) {
+		writeBloc(indexFat, data, 512, indexWriteBloc);
+		indexFat++;
+	}
+
+	writeBloc(indexFat, data, rest, indexWriteBloc);
+
+	return EXIT_SUCCESS;
 }
+
+int writeBloc (unsigned int fatIndex, const char *fullData, unsigned int dataSize, unsigned int packetNumber) {
+
+	int index;
+	char tempByte;
+
+	if (dataSize > 512) {
+		return EXIT_FAILURE;
+	}
+
+	FAT[fatIndex] = END;
+	for (index = packetNumber * 512; index < packetNumber * 512 + dataSize; index++) {
+		tempByte = fullData[index];
+		volume[fatIndex * 512 + index] = tempByte;
+	}
+	freeblocks--;
+	return EXIT_SUCCESS;
+}
+
+void insertObject (struct objet *header, struct objet *newObjet) {
+
+	struct objet *objetTemp;
+	objetTemp = header;
+	while (objetTemp->next != NULL) {
+		objetTemp = objetTemp->next;
+	}
+	objetTemp->next = newObjet;
+}
+
 
 int supprimer_objet (char *nom) {
 
@@ -275,31 +273,25 @@ void supprimer_tout () {
 
 }
 
-int lire_objet (struct objet *o, char **data) {
-	char * newData;
-	int i;
-	int l;
-	int indexData;
-	int nbBlock;
+int readObject (struct objet *objectTR, char **dataOut) {
 
-	newData = malloc(o->taille);
-	if (newData == NULL) {
+	unsigned int size;
+	unsigned int indexFat;
+	unsigned int index;
+
+	size = objectTR->taille;
+
+	*dataOut = malloc(size);
+
+	if (*dataOut == NULL) {
 		fprintf(stderr, "error malloc");
-		free(data);
+		free(*dataOut);
 		exit(EXIT_FAILURE);
 	}
+	indexFat = objectTR->index;
 
-	indexData = o->index;
-	nbBlock = (o->taille / 512) + 1;
-
-	for (i = 0; i < nbBlock; i++) {
-		for (l = 0; l < BLOCSIZE; l++) {
-			newData[l] = volume[l + (indexData * 512)];
-		}
-
-		indexData = o->index;
+	for (index = 0; index < size; index++) {
+		(*dataOut)[index] = volume[512 * indexFat + index];
 	}
-	*data = newData;
 	return EXIT_SUCCESS;
 }
-
