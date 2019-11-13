@@ -1,4 +1,4 @@
-#include <stdlib.h>
+
 #include <stdio.h>
 
 #include "fat.h"
@@ -161,8 +161,6 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 
 		return objTemp;
 
-		exit(EXIT_SUCCESS);
-
 	}
 
 	fprintf(stderr, "no more place or name already exist");
@@ -174,16 +172,6 @@ int supprimer_objet (char *nom) {
 
 	struct objet *objNom;
 	struct objet *objBeforeNom;
-	objNom = malloc(sizeof(*objNom));
-	objBeforeNom = malloc(sizeof(*objBeforeNom));
-
-
-	if (objNom == NULL || objBeforeNom == NULL) {
-		fprintf(stderr, "error malloc");
-		free(objNom);
-		free(objBeforeNom);
-		exit(EXIT_FAILURE);
-	}
 	objNom = obj;
 	objBeforeNom = obj;
 
@@ -223,9 +211,7 @@ int supprimer_objet (char *nom) {
 		FAT[lastIndexTemp] = FREE;
 	}
 
-
 	int i;
-	int j;
 	for (i = 0; i < (indexObjNom - 2); ++i) {
 		objBeforeNom = objBeforeNom->next;
 	}
@@ -235,3 +221,67 @@ int supprimer_objet (char *nom) {
 	exit(EXIT_SUCCESS);
 
 }
+
+void supprimer_tout () {
+
+	struct objet *objetToDelete;
+	struct objet *currentObjet;
+	unsigned int nbBlock;
+	unsigned short lastIndexTemp;
+	unsigned short indexTemp;
+	int k;
+	int l;
+	currentObjet = obj;
+	while (currentObjet != NULL) {
+		nbBlock = (currentObjet->taille / 512) + 1;
+
+
+		indexTemp = currentObjet->index;
+		if (strcmp(currentObjet->nom, "first")) {
+			for (k = 0; k < (nbBlock); ++k) {
+				if (indexTemp != END) {
+					for (l = 512 * indexTemp; l < (512 * indexTemp + 512); l++) {
+						volume[l] = 0;
+					}
+					lastIndexTemp = indexTemp;
+					indexTemp = FAT[indexTemp];
+				}
+				FAT[lastIndexTemp] = FREE;
+			}
+			freeblocks = freeblocks + nbBlock;
+		}
+
+		objetToDelete = currentObjet;
+		currentObjet = currentObjet->next;
+		free(objetToDelete);
+	}
+
+}
+
+int lire_objet (struct objet *o, char **data) {
+
+	*data = malloc(o->taille);
+	if (*data == NULL) {
+		fprintf(stderr, "error malloc");
+		free(data);
+		exit(EXIT_FAILURE);
+	}
+
+	int i;
+	int l;
+	int indexData;
+	int nbBlock;
+
+	indexData = o->index;
+	nbBlock = (o->taille / 512) + 1;
+
+	for (i = 0; i < nbBlock; i++) {
+		for (l = 0; l < BLOCSIZE; l++) {
+			data[l] = volume[l + (indexData * 512)];
+		}
+
+		indexData = o->index;
+	}
+
+}
+
