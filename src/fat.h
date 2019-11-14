@@ -35,7 +35,7 @@ void initialise_fat();
 \return pointeur vers l'objet trouvé ou NULL sinon.
 */
 struct objet *rechercher_objet(char *nom);
-int objectNotExist (char* nom);
+int objectExist (char* nom);
 
 /**
 \brief Cette fonction permet de créer un objet en vérifiant qu'aucun objet n'a le même nom dans la liste (pas triée par nom)

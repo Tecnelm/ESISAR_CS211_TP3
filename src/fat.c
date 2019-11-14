@@ -64,19 +64,21 @@ struct objet *rechercher_objet (char *nom) {
 	return NULL;
 }
 
-int objectNotExist (char *nom) {
+int objectExist (char *nom) {
 
 	struct objet *objTemp;
 	objTemp = obj;
+	//struct objet *objPrevious;
+	//objPrevious = obj;
 
-	while (objTemp != NULL) {
+	while (objTemp != NULL){
 		if (!strcmp(objTemp->nom, nom)) {
-			return 0;
+			return 1;
 		}
 		objTemp = objTemp->next;
 	}
 
-	return 1;
+	return 0;
 }
 
 
@@ -84,19 +86,20 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 
 	struct objet *objTemp;
 	unsigned int nbBlock;
+	struct objet *objPrevious;
 
 	int nbBlockTemp;
 	int indexed;
 	signed int lastIndex;
-	unsigned int i, j,l;
+	unsigned int i, j, l;
 	unsigned long reste;
 	int indexReste;
 	int indexData;
-	int indexVaccum;
 
+	objPrevious = obj;
 	nbBlock = (taille / BLOCSIZE) + 1;
 
-	if (freeblocks >= nbBlock && objectNotExist(nom)) {
+	if (freeblocks >= nbBlock && !objectExist(nom)) {
 		freeblocks = freeblocks - nbBlock;
 
 		objTemp = malloc(sizeof(*objTemp));
@@ -107,9 +110,14 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 			exit(EXIT_FAILURE);
 		}
 
+		while (objPrevious->next != NULL) {
+			objPrevious = objPrevious->next;
+		}
+
+		objPrevious->next = objTemp;
+
 		objTemp->auteur = auteur;
 		objTemp->taille = taille;
-		obj->next = objTemp;
 		objTemp->next = NULL;
 		strcpy(objTemp->nom, nom);
 
@@ -119,7 +127,6 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 		reste = strlen(data) % BLOCSIZE;
 		indexReste = 0;
 		indexData = 0;
-		indexVaccum = 0;
 
 		for (i = 0; i < BLOCNUM; ++i) {
 			if (nbBlockTemp != -1) {
@@ -153,9 +160,10 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 						FAT[lastIndex] = END;
 					}
 					indexData++;
+					nbBlockTemp--;
 					lastIndex = i;
 				}
-				nbBlockTemp--;
+
 			}
 
 		}
@@ -185,7 +193,7 @@ int supprimer_objet (char *nom) {
 	objectPrevious = obj;
 	indexObjToDel = 0;
 
-	if (!objectNotExist(nom) && strcmp(nom, "first")) {
+	if (objectExist(nom) && strcmp(nom, "first")) {
 		while (objetToDel != NULL) {
 			indexObjToDel++;
 			if (!strcmp(objetToDel->nom, nom)) {
@@ -198,17 +206,16 @@ int supprimer_objet (char *nom) {
 		fprintf(stderr, "\"%s\" CANNOT BE DELETED : NOT EXIST OR FIRST\n", nom);
 	}
 
-	if (objetToDel == NULL) {
+	/*if (objetToDel == NULL) {
 		nbBlock = 1;
 		freeblocks = freeblocks + nbBlock;
 		indexTemp = 0;
+	}*/
 
-	}
-	else {
-		nbBlock = (objetToDel->taille / BLOCSIZE) + 1;
-		freeblocks = freeblocks + nbBlock;
-		indexTemp = obj->index;
-	}
+	nbBlock = (objetToDel->taille / BLOCSIZE) + 1;
+	freeblocks = freeblocks + nbBlock;
+	indexTemp = objetToDel->index;
+
 	for (k = 0; k < (nbBlock); ++k) {
 		if (indexTemp != END) {
 			for (l = BLOCSIZE * indexTemp; l < (BLOCSIZE * (indexTemp + 1)); l++) {
