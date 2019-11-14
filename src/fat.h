@@ -2,11 +2,12 @@
 #include <stdlib.h>
 
 
-#define BLOCSIZE 512
+#define BLOCSIZE 3
 #define BLOCNUM 1024
 #define NAMELEN 256
 #define FREE 0xFFFF
 #define END 0xFFFE
+
 
 struct objet {
 	char nom[NAMELEN];
@@ -31,6 +32,10 @@ int addNewObject (char *nom, unsigned short auteur, unsigned int taille, char *d
 
 int writeBloc (unsigned int fatIndex, const char *fullData, unsigned int dataSize, unsigned int packetNumber);
 
+int readBloc (unsigned int indexFat, unsigned int size, char *str, unsigned int numberPacket);
+
+
+unsigned int nextFatFreeIndex (unsigned int currentFatIndex);
 
 void insertObject (struct objet *header, struct objet *newObjet);
 

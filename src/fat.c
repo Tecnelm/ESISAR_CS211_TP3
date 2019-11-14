@@ -89,8 +89,14 @@ int addNewObject (char *nom, unsigned short auteur, unsigned int taille, char *d
 	unsigned int indexFat;
 	unsigned int indexWriteBloc;
 
-	blocUse = (taille / 512) + 1;
-	if (!(freeblocks >= blocUse)) {
+
+	blocUse = (taille / BLOCSIZE);
+	rest = taille % BLOCSIZE;
+	if (rest) {
+		blocUse++;
+	}
+
+	if ((freeblocks < blocUse)) {
 		fprintf(stderr, "ERROR NO PLACE LEFT\n");
 		return EXIT_FAILURE;
 	}
@@ -99,6 +105,9 @@ int addNewObject (char *nom, unsigned short auteur, unsigned int taille, char *d
 		return EXIT_FAILURE;
 	}
 	newObject = malloc(sizeof(struct objet));
+	if (rest) {
+		blocUse--;
+	}
 
 	if (newObject == NULL) {
 		fprintf(stderr, "ALLOCATION MEMORY ERROR\n");
@@ -112,37 +121,54 @@ int addNewObject (char *nom, unsigned short auteur, unsigned int taille, char *d
 	newObject->next = NULL;
 	insertObject(obj, newObject);
 
-	rest = taille % 512;
-	indexFat = 0;
-
-	while (indexFat < BLOCNUM && FAT[indexFat] != FREE)
-		indexFat++;
+	indexFat = nextFatFreeIndex(0);
 	newObject->index = indexFat;
 
 
-	for (indexWriteBloc = 0; indexWriteBloc < blocUse - 1; indexWriteBloc++) {
-		writeBloc(indexFat, data, 512, indexWriteBloc);
-		indexFat++;
+	for (indexWriteBloc = 0; indexWriteBloc < blocUse; indexWriteBloc++) {
+		writeBloc(indexFat, data, BLOCSIZE, indexWriteBloc);
+		if (indexWriteBloc == blocUse - 1 && !rest) {
+			FAT[indexFat] = END;
+		}
+		else {
+			FAT[indexFat] = nextFatFreeIndex(indexFat + 1);
+		}
+		indexFat = FAT[indexFat];
+
 	}
 
-	writeBloc(indexFat, data, rest, indexWriteBloc);
+	if (rest) {
+		writeBloc(indexFat, data, rest, indexWriteBloc);
+		FAT[indexFat] = END;
+	}
 
 	return EXIT_SUCCESS;
 }
 
+unsigned int nextFatFreeIndex (unsigned int currentFatIndex) {
+
+	unsigned int index = currentFatIndex;
+	if (currentFatIndex < 0 || currentFatIndex >= BLOCNUM) {
+		return -1;
+	}
+	while (index < BLOCNUM && FAT[index] != FREE) {
+		index++;
+	}
+	return index;
+}
+
 int writeBloc (unsigned int fatIndex, const char *fullData, unsigned int dataSize, unsigned int packetNumber) {
 
-	int index;
+	unsigned int index;
 	char tempByte;
 
-	if (dataSize > 512) {
+	if (dataSize > BLOCSIZE) {
 		return EXIT_FAILURE;
 	}
 
-	FAT[fatIndex] = END;
-	for (index = packetNumber * 512; index < packetNumber * 512 + dataSize; index++) {
-		tempByte = fullData[index];
-		volume[fatIndex * 512 + index] = tempByte;
+	for (index = 0; index < dataSize; index++) {
+		tempByte = fullData[packetNumber * BLOCSIZE + index];
+		volume[fatIndex * BLOCSIZE + index] = tempByte;
 	}
 	freeblocks--;
 	return EXIT_SUCCESS;
@@ -195,13 +221,13 @@ int supprimer_objet (char *nom) {
 
 	}
 	else {
-		nbBlock = (objetToDel->taille / 512) + 1;
+		nbBlock = (objetToDel->taille / BLOCSIZE) + 1;
 		freeblocks = freeblocks + nbBlock;
 		indexTemp = obj->index;
 	}
 	for (k = 0; k < (nbBlock); ++k) {
 		if (indexTemp != END) {
-			for (l = 512 * indexTemp; l < (512 * (indexTemp + 1)); l++) {
+			for (l = BLOCSIZE * indexTemp; l < (BLOCSIZE * (indexTemp + 1)); l++) {
 				volume[l] = 0;
 			}
 			lastIndexTemp = indexTemp;
@@ -248,14 +274,14 @@ void supprimer_tout () {
 	int l;
 	currentObjet = obj;
 	while (currentObjet != NULL) {
-		nbBlock = (currentObjet->taille / 512) + 1;
+		nbBlock = (currentObjet->taille / BLOCSIZE) + 1;
 
 
 		indexTemp = currentObjet->index;
 		if (strcmp(currentObjet->nom, "first")) {
 			for (k = 0; k < (nbBlock); ++k) {
 				if (indexTemp != END) {
-					for (l = 512 * indexTemp; l < (512 * indexTemp + 512); l++) {
+					for (l = BLOCSIZE * indexTemp; l < (BLOCSIZE * indexTemp + BLOCSIZE); l++) {
 						volume[l] = 0;
 					}
 					lastIndexTemp = indexTemp;
@@ -278,20 +304,45 @@ int readObject (struct objet *objectTR, char **dataOut) {
 	unsigned int size;
 	unsigned int indexFat;
 	unsigned int index;
+	unsigned int numberBloc;
+	unsigned int rest;
 
 	size = objectTR->taille;
+
+	numberBloc = size / BLOCSIZE;
+	rest = size % BLOCSIZE;
 
 	*dataOut = malloc(size);
 
 	if (*dataOut == NULL) {
-		fprintf(stderr, "error malloc");
+		fprintf(stderr, "ERROR MEMORY ALLOCATION\n");
 		free(*dataOut);
 		exit(EXIT_FAILURE);
 	}
 	indexFat = objectTR->index;
 
+	for (index = 0; index < numberBloc; index++) {
+		readBloc(indexFat, BLOCSIZE, *dataOut, index);
+		indexFat = FAT[indexFat];
+	}
+	if (rest) {
+		readBloc(indexFat, rest, *dataOut, index);
+	}
+
+
+	return EXIT_SUCCESS;
+}
+
+int readBloc (unsigned int indexFat, unsigned int size, char *str, unsigned int numberPacket) {
+
+	unsigned int index;
+	if (size > BLOCSIZE) {
+		fprintf(stderr, "ERROR TO MANY DATA ASK\n");
+		return EXIT_FAILURE;
+	}
 	for (index = 0; index < size; index++) {
-		(*dataOut)[index] = volume[512 * indexFat + index];
+		str[BLOCSIZE * numberPacket + index] = volume[BLOCSIZE * indexFat + index];
 	}
 	return EXIT_SUCCESS;
 }
+
