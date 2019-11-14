@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define BLOCSIZE 512
+#define BLOCSIZE 4
 #define BLOCNUM 1024
 #define NAMELEN 256
 #define FREE 0xFFFF

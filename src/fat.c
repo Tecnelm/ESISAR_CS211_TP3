@@ -88,11 +88,13 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 	int nbBlockTemp;
 	int indexed;
 	signed int lastIndex;
-	unsigned int i, j;
+	unsigned int i, j,l;
 	unsigned long reste;
 	int indexReste;
+	int indexData;
+	int indexVaccum;
 
-	nbBlock = (taille / 512) + 1;
+	nbBlock = (taille / BLOCSIZE) + 1;
 
 	if (freeblocks >= nbBlock && objectNotExist(nom)) {
 		freeblocks = freeblocks - nbBlock;
@@ -114,8 +116,10 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 		nbBlockTemp = nbBlock;
 		indexed = 1;
 		lastIndex = -1;
-		reste = strlen(data) % 512;
+		reste = strlen(data) % BLOCSIZE;
 		indexReste = 0;
+		indexData = 0;
+		indexVaccum = 0;
 
 		for (i = 0; i < BLOCNUM; ++i) {
 			if (nbBlockTemp != -1) {
@@ -124,27 +128,31 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 						objTemp->index = i;
 						indexed = 0;
 					}
-					for (j = (512 * (nbBlock - nbBlockTemp)); j < (512 * (nbBlock - nbBlockTemp) + 512); ++j) {
+					for (j = 0; j < (BLOCSIZE); ++j) {
 						if (nbBlockTemp > 1) {
-							volume[(512 * i) + (j - (512 * (nbBlock - nbBlockTemp)))] = data[j];
+							volume[(BLOCSIZE * i) + j] = data[(BLOCSIZE * indexData) + j];
 						}
 						else {
-							if (reste >= indexReste) {
-								volume[(512 * i) + (j - (512 * (nbBlock - nbBlockTemp)))] = data[j];
+							if (reste > indexReste) {
+								volume[(BLOCSIZE * i) + j] = data[(BLOCSIZE * indexData) + j];
 								indexReste++;
 							}
 							else {
-								volume[512 * i] = 0;
+								for (l = indexReste; l < (BLOCSIZE - indexReste); l++) {
+									volume[(BLOCSIZE * i) + l] = '\0';
+								}
 							}
 						}
 					}
+
+
 					if (lastIndex != -1 && nbBlockTemp != 0) {
 						FAT[lastIndex] = i;
 					}
 					else {
 						FAT[lastIndex] = END;
 					}
-
+					indexData++;
 					lastIndex = i;
 				}
 				nbBlockTemp--;
@@ -197,13 +205,13 @@ int supprimer_objet (char *nom) {
 
 	}
 	else {
-		nbBlock = (objetToDel->taille / 512) + 1;
+		nbBlock = (objetToDel->taille / BLOCSIZE) + 1;
 		freeblocks = freeblocks + nbBlock;
 		indexTemp = obj->index;
 	}
 	for (k = 0; k < (nbBlock); ++k) {
 		if (indexTemp != END) {
-			for (l = 512 * indexTemp; l < (512 * (indexTemp + 1)); l++) {
+			for (l = BLOCSIZE * indexTemp; l < (BLOCSIZE * (indexTemp + 1)); l++) {
 				volume[l] = 0;
 			}
 			lastIndexTemp = indexTemp;
@@ -249,15 +257,15 @@ void supprimer_tout () {
 	int k;
 	int l;
 	currentObjet = obj;
-	while (currentObjet != NULL) {
-		nbBlock = (currentObjet->taille / 512) + 1;
 
+	while (currentObjet != NULL) {
+		nbBlock = (currentObjet->taille / BLOCSIZE) + 1;
 
 		indexTemp = currentObjet->index;
 		if (strcmp(currentObjet->nom, "first")) {
 			for (k = 0; k < (nbBlock); ++k) {
 				if (indexTemp != END) {
-					for (l = 512 * indexTemp; l < (512 * indexTemp + 512); l++) {
+					for (l = BLOCSIZE * indexTemp; l < (BLOCSIZE * indexTemp + BLOCSIZE); l++) {
 						volume[l] = 0;
 					}
 					lastIndexTemp = indexTemp;
@@ -280,6 +288,7 @@ int lire_objet (struct objet *o, char **data) {
 	int i;
 	int l;
 	int indexData;
+	int indexNewData;
 	int nbBlock;
 
 	newData = malloc(o->taille);
@@ -289,15 +298,17 @@ int lire_objet (struct objet *o, char **data) {
 		exit(EXIT_FAILURE);
 	}
 
+	indexNewData = 0;
 	indexData = o->index;
-	nbBlock = (o->taille / 512) + 1;
+	nbBlock = (o->taille / BLOCSIZE) + 1;
 
 	for (i = 0; i < nbBlock; i++) {
 		for (l = 0; l < BLOCSIZE; l++) {
-			newData[l] = volume[l + (indexData * 512)];
+			newData[indexNewData] = volume[l + (indexData * BLOCSIZE)];
+			indexNewData++;
 		}
 
-		indexData = o->index;
+		indexData = FAT[indexData];
 	}
 	*data = newData;
 	return EXIT_SUCCESS;
