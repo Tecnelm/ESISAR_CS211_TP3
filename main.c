@@ -5,9 +5,9 @@
 int main () {
 	//char nomToFind[] = "first";
 	char nom1[] = "second";
-	char data1[] = "bonjoure j!";
+	char data1[] = "bonjour";
 	char nom2[] = "third";
-	char data2[] = "bonjoure j!";
+	char data2[] = "bonjoure ";
 	char nom3[] = "fourth";
 	char data3[] = "bonjoure j!";
 	char nom4[] = "fifth";
@@ -35,7 +35,6 @@ int main () {
 	printObject(objTemp);
 
 
-
 	supprimer_objet(nom2);
 
 	creer_objet(nom4, auteur, (sizeof(data4)-1), data4);
@@ -47,5 +46,6 @@ int main () {
 
 	supprimer_tout();
 	free(readData);
+
 	return 0;
 }

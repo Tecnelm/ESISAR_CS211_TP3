@@ -71,7 +71,7 @@ int objectExist (char *nom) {
 	//struct objet *objPrevious;
 	//objPrevious = obj;
 
-	while (objTemp != NULL){
+	while (objTemp != NULL) {
 		if (!strcmp(objTemp->nom, nom)) {
 			return 1;
 		}
@@ -115,7 +115,6 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 		}
 
 		objPrevious->next = objTemp;
-
 		objTemp->auteur = auteur;
 		objTemp->taille = taille;
 		objTemp->next = NULL;
@@ -129,43 +128,36 @@ struct objet *creer_objet (char *nom, unsigned short auteur, unsigned int taille
 		indexData = 0;
 
 		for (i = 0; i < BLOCNUM; ++i) {
-			if (nbBlockTemp != -1) {
-				if (FAT[i] == FREE) {
-					if (indexed) {
-						objTemp->index = i;
-						indexed = 0;
-					}
-					for (j = 0; j < (BLOCSIZE); ++j) {
-						if (nbBlockTemp > 1) {
-							volume[(BLOCSIZE * i) + j] = data[(BLOCSIZE * indexData) + j];
-						}
-						else {
-							if (reste > indexReste) {
-								volume[(BLOCSIZE * i) + j] = data[(BLOCSIZE * indexData) + j];
-								indexReste++;
-							}
-							else {
-								for (l = indexReste; l < (BLOCSIZE - indexReste); l++) {
-									volume[(BLOCSIZE * i) + l] = '\0';
-								}
-							}
-						}
-					}
-
-
-					if (lastIndex != -1 && nbBlockTemp != 0) {
-						FAT[lastIndex] = i;
+			if (nbBlockTemp != -1 && FAT[i] == FREE) {
+				if (indexed) {
+					objTemp->index = i;
+					indexed = 0;
+				}
+				for (j = 0; j < BLOCSIZE; ++j) {
+					if (nbBlockTemp > 1) {
+						volume[(BLOCSIZE * i) + j] = data[(BLOCSIZE * indexData) + j];
 					}
 					else {
-						FAT[lastIndex] = END;
+						if (reste > indexReste) {
+							volume[(BLOCSIZE * i) + j] = data[(BLOCSIZE * indexData) + j];
+							indexReste++;
+						}
+						else {
+							volume[(BLOCSIZE * i) + j] = '\0';
+						}
 					}
-					indexData++;
-					nbBlockTemp--;
-					lastIndex = i;
 				}
 
+				if (lastIndex != -1 && nbBlockTemp != 0) {
+					FAT[lastIndex] = i;
+				}
+				else {
+					FAT[lastIndex] = END;
+				}
+				indexData++;
+				nbBlockTemp--;
+				lastIndex = i;
 			}
-
 		}
 
 		return objTemp;
@@ -205,12 +197,6 @@ int supprimer_objet (char *nom) {
 	else {
 		fprintf(stderr, "\"%s\" CANNOT BE DELETED : NOT EXIST OR FIRST\n", nom);
 	}
-
-	/*if (objetToDel == NULL) {
-		nbBlock = 1;
-		freeblocks = freeblocks + nbBlock;
-		indexTemp = 0;
-	}*/
 
 	nbBlock = (objetToDel->taille / BLOCSIZE) + 1;
 	freeblocks = freeblocks + nbBlock;
@@ -291,7 +277,8 @@ void supprimer_tout () {
 }
 
 int lire_objet (struct objet *o, char **data) {
-	char * newData;
+
+	char *newData;
 	int i;
 	int l;
 	int indexData;
