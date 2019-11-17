@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include "src/fat.h"
 
+
 int main () {
+
 	char nom1[] = "second";
 	char data1[] = "bonjour";
 	char nom2[] = "third";
@@ -41,5 +43,5 @@ int main () {
 
 	supprimer_tout();
 	free(readData);
-	return  EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
