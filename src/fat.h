@@ -28,7 +28,7 @@ mettre à jour la variable freeblocks
 \param taille la taille de l'objet
 \param data les données à copier
 */
-int addNewObject (char *nom, unsigned short auteur, unsigned int taille, char *data);
+int creer_objet (char *nom, unsigned short auteur, unsigned int taille, char *data);
 
 int writeBloc (unsigned int fatIndex, const char *fullData, unsigned int dataSize, unsigned int packetNumber);
 
@@ -84,7 +84,15 @@ Attention à la taille !!!!!!!!!!!!!!
 \return -1 si erreur, 0 sinon.
 */
 
-int readObject (struct objet *o, char **data);
+int lire_objet (struct objet *o, char **data);
+
+struct objet ** getObjects (char *name) ;
+
+void freeFat (unsigned int firstIndex) ;
+
+void resetFAT();
+void resetVolume();
+void supprObjectStruc(struct objet *object);
 
 
 

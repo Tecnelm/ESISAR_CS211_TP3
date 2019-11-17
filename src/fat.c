@@ -81,13 +81,14 @@ int objectNotExist (char *nom) {
 	return 1;
 }
 
-int addNewObject (char *nom, unsigned short auteur, unsigned int taille, char *data) {
+int creer_objet (char *nom, unsigned short auteur, unsigned int taille, char *data) {
 
 	struct objet *newObject;
 	unsigned int blocUse;
 	unsigned rest;
 	unsigned int indexFat;
 	unsigned int indexWriteBloc;
+	//unsigned int taille = size ;
 
 
 	blocUse = (taille / BLOCSIZE);
@@ -184,70 +185,78 @@ void insertObject (struct objet *header, struct objet *newObjet) {
 	objetTemp->next = newObjet;
 }
 
-
 int supprimer_objet (char *nom) {
 
-	struct objet *objetToDel;
-	struct objet *objectPrevious;
-	int indexObjToDel;
+	struct objet **objectsList;
 	unsigned int nbBlock;
 
-	unsigned short indexTemp;
-	unsigned short lastIndexTemp;
+	objectsList = getObjects(nom);
+	if (objectsList[0] == NULL || objectsList[1] == NULL) {
+		return EXIT_FAILURE;
+	}
 
-	unsigned int k, l;
+	objectsList[0]->next = objectsList[1]->next;
 
-	objetToDel = obj;
-	objectPrevious = obj;
-	indexObjToDel = 0;
+	nbBlock = (objectsList[1]->taille) / BLOCSIZE + ((objectsList[1]->taille) % BLOCSIZE == 0 ? 0 : 1);
 
-	if (!objectNotExist(nom) && strcmp(nom, "first")) {
-		while (objetToDel != NULL) {
-			indexObjToDel++;
-			if (!strcmp(objetToDel->nom, nom)) {
+	freeFat(objectsList[1]->index);
+
+	freeblocks += nbBlock;
+
+	free(objectsList[1]);
+
+	return EXIT_SUCCESS;
+
+
+
+
+}
+
+void freeFat (unsigned int firstIndex) {
+
+	unsigned int indexFat = firstIndex;
+
+	while(FAT[indexFat] != END)
+	{
+		FAT[indexFat] = FREE;
+		indexFat++;
+	}
+	FAT[indexFat] = FREE;
+}
+
+struct objet **getObjects (char *name) {
+
+	static struct objet *objectL[2];
+	struct objet *objectToDel;
+	struct objet *previousObject;
+
+	objectToDel = obj;
+	previousObject = NULL;
+	if (!objectNotExist(name) && strcmp(name, "first")) {
+		while (objectToDel != NULL) {
+			if (!strcmp(objectToDel->nom, name)) {
 				break;
 			}
-			objetToDel = objetToDel->next;
+			previousObject = objectToDel;
+			objectToDel = objectToDel->next;
 		}
 	}
 	else {
-		fprintf(stderr, "\"%s\" CANNOT BE DELETED : NOT EXIST OR FIRST\n", nom);
+		objectToDel = NULL;
+		fprintf(stderr, "\"%s\" CANNOT BE DELETED : NOT EXIST OR HEADER\n", name);
 	}
-
-	if (objetToDel == NULL) {
-		nbBlock = 1;
-		freeblocks = freeblocks + nbBlock;
-		indexTemp = 0;
-
+	if (objectToDel == obj || objectToDel == NULL) {
+		objectL[0] = NULL;
+		objectL[1] = NULL;
 	}
 	else {
-		nbBlock = (objetToDel->taille / BLOCSIZE) + 1;
-		freeblocks = freeblocks + nbBlock;
-		indexTemp = obj->index;
+		objectL[1] = objectToDel;
+		objectL[0] = previousObject;
 	}
-	for (k = 0; k < (nbBlock); ++k) {
-		if (indexTemp != END) {
-			for (l = BLOCSIZE * indexTemp; l < (BLOCSIZE * (indexTemp + 1)); l++) {
-				volume[l] = 0;
-			}
-			lastIndexTemp = indexTemp;
-			indexTemp = FAT[indexTemp];
-		}
-		FAT[lastIndexTemp] = FREE;
-	}
-
-	for (k = 0; k < (indexObjToDel - 2); ++k) {
-		objectPrevious = objectPrevious->next;
-	}
-	if (objetToDel == NULL) {
-		objectPrevious->next = NULL;
-	}
-	else {
-		objectPrevious->next = objetToDel->next;
-	}
-	free(objetToDel);
-	return EXIT_SUCCESS;
+	return objectL;
 }
+
+
 
 void printObject (struct objet *obj) {
 
@@ -265,41 +274,42 @@ void printObject (struct objet *obj) {
 
 void supprimer_tout () {
 
-	struct objet *objetToDelete;
-	struct objet *currentObjet;
-	unsigned int nbBlock;
-	unsigned short lastIndexTemp;
-	unsigned short indexTemp;
-	int k;
-	int l;
-	currentObjet = obj;
-	while (currentObjet != NULL) {
-		nbBlock = (currentObjet->taille / BLOCSIZE) + 1;
+	freeblocks = BLOCNUM;
 
+	resetFAT();
 
-		indexTemp = currentObjet->index;
-		if (strcmp(currentObjet->nom, "first")) {
-			for (k = 0; k < (nbBlock); ++k) {
-				if (indexTemp != END) {
-					for (l = BLOCSIZE * indexTemp; l < (BLOCSIZE * indexTemp + BLOCSIZE); l++) {
-						volume[l] = 0;
-					}
-					lastIndexTemp = indexTemp;
-					indexTemp = FAT[indexTemp];
-				}
-				FAT[lastIndexTemp] = FREE;
-			}
-			freeblocks = freeblocks + nbBlock;
-		}
+	resetVolume();
 
-		objetToDelete = currentObjet;
-		currentObjet = currentObjet->next;
-		free(objetToDelete);
+	supprObjectStruc(obj);
+
+}
+
+void resetFAT()
+{
+	unsigned  int index;
+	for(index = 0 ; index < BLOCNUM ; index++)
+		FAT[index] = FREE;
+}
+void resetVolume()
+{
+	unsigned int index;
+	for(index = 0 ; index < BLOCNUM*BLOCSIZE ; index ++)
+		volume[index] = '\0';
+}
+
+void supprObjectStruc(struct objet *object)
+{
+	if(object ->next == NULL)
+		free(object);
+	else
+	{
+		supprObjectStruc(object->next);
+		free(object);
 	}
 
 }
 
-int readObject (struct objet *objectTR, char **dataOut) {
+int lire_objet (struct objet *objectTR, char **dataOut) {
 
 	unsigned int size;
 	unsigned int indexFat;
