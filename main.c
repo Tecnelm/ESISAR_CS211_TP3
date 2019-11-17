@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include "src/fat.h"
-#include "string.h"
-
 
 int main () {
 	char nom1[] = "second";
@@ -19,8 +17,6 @@ int main () {
 	struct objet *objTemp;
 
 	initialise_fat();
-	//objTemp = rechercher_objet("first");
-	//printObject(objTemp);
 
 	creer_objet(nom1, auteur, (sizeof(data1)), data1);
 	objTemp = rechercher_objet(nom1);
@@ -34,7 +30,6 @@ int main () {
 	objTemp = rechercher_objet(nom3);
 	printObject(objTemp);
 
-
 	supprimer_objet(nom2);
 
 	creer_objet(nom4, auteur, (sizeof(data4)), data4);
@@ -46,4 +41,5 @@ int main () {
 
 	supprimer_tout();
 	free(readData);
+	return  EXIT_SUCCESS;
 }

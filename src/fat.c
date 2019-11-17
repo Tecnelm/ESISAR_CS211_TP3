@@ -1,13 +1,28 @@
-#include <stdio.h>
-
 #include "fat.h"
-#include  <string.h>
 
 
-/* Ici, on est oblig� d'utiliser la notation struct xxx,
-car la structure s'auto-r�f�rence!*/
+#define BLOCSIZE 512
+#define BLOCNUM 1024
+#define NAMELEN 256
+#define FREE 0xFFFF
+#define END 0xFFFE
 
-typedef struct object object;
+
+/**
+ * structure of ou objectFat
+ * taille correspond to the size of data
+ * index the index of first indexFAT
+ * next point to the next item of the list
+ * auteur who write the data
+ * name of the bloc
+ */
+struct objet {
+	char nom[NAMELEN];
+	unsigned int taille;
+	unsigned short auteur;
+	unsigned short index;
+	struct objet *next;
+};
 
 struct objet *obj;
 
@@ -20,7 +35,7 @@ unsigned short freeblocks;
 struct objet *new_object () {
 
 	struct objet *objTemp;
-	objTemp = malloc(sizeof(*objTemp));
+	objTemp = malloc(sizeof(*objTemp));/// allocate the number of byte you need for the object
 
 	if (objTemp == NULL) {
 		fprintf(stderr, "ERROR ALLOCATION MEMORY\n");
@@ -32,15 +47,13 @@ struct objet *new_object () {
 
 void initialise_fat () {
 
-	int index;
 	struct objet *objTemp;
 
-	for (index = 0; index < BLOCNUM; index++) {
-		FAT[index] = 0xFFFF;
-	}
+	resetFAT();/// write all index of FAT to FREE
 
 	freeblocks = BLOCNUM;
 	objTemp = new_object();
+
 	strcpy(objTemp->nom, "first");
 	objTemp->taille = 0;
 	objTemp->auteur = 0;
@@ -48,7 +61,6 @@ void initialise_fat () {
 	objTemp->next = NULL;
 
 	obj = objTemp;
-
 }
 
 struct objet *rechercher_objet (char *nom) {
@@ -57,8 +69,8 @@ struct objet *rechercher_objet (char *nom) {
 	objTemp = obj;
 
 	while (objTemp != NULL) {
-		if (strcmp(objTemp->nom, nom) == 0) {
-			return objTemp;
+		if (!strcmp(objTemp->nom, nom)) {
+			return objTemp;                    ///return the object with the right name
 		}
 		objTemp = objTemp->next;
 	}
@@ -71,7 +83,7 @@ int objectNotExist (char *nom) {
 	struct objet *objTemp;
 	objTemp = obj;
 
-	while (objTemp != NULL) {
+	while (objTemp != NULL) {///look every object to see if the name is present
 		if (!strcmp(objTemp->nom, nom)) {
 			return 0;
 		}
@@ -88,15 +100,16 @@ int creer_objet (char *nom, unsigned short auteur, unsigned int taille, char *da
 	unsigned rest;
 	unsigned int indexFat;
 	unsigned int indexWriteBloc;
-	//unsigned int taille = size ;
 
-
+	///calcul the needed by the data
 	blocUse = (taille / BLOCSIZE);
 	rest = taille % BLOCSIZE;
-	if (rest) {
+
+	if (rest) {///add one bloc  if you have other data (a rest of data)
 		blocUse++;
 	}
 
+	///check if you have enough place left
 	if ((freeblocks < blocUse)) {
 		fprintf(stderr, "ERROR NO PLACE LEFT\n");
 		return EXIT_FAILURE;
@@ -106,13 +119,14 @@ int creer_objet (char *nom, unsigned short auteur, unsigned int taille, char *da
 		return EXIT_FAILURE;
 	}
 	newObject = malloc(sizeof(struct objet));
-	if (rest) {
+	if (rest) {///get the number of full packet
 		blocUse--;
 	}
 
 	if (newObject == NULL) {
 		fprintf(stderr, "ALLOCATION MEMORY ERROR\n");
 		free(newObject);
+		supprimer_tout();
 		exit(EXIT_FAILURE);
 	}
 
@@ -127,18 +141,18 @@ int creer_objet (char *nom, unsigned short auteur, unsigned int taille, char *da
 
 
 	for (indexWriteBloc = 0; indexWriteBloc < blocUse; indexWriteBloc++) {
-		writeBloc(indexFat, data, BLOCSIZE, indexWriteBloc);
+		writeBloc(indexFat, data, BLOCSIZE, indexWriteBloc);/// write data by bloc
 		if (indexWriteBloc == blocUse - 1 && !rest) {
 			FAT[indexFat] = END;
 		}
 		else {
-			FAT[indexFat] = nextFatFreeIndex(indexFat + 1);
+			FAT[indexFat] = nextFatFreeIndex(indexFat + 1); /// get the next free indexFat
 		}
 		indexFat = FAT[indexFat];
 
 	}
 
-	if (rest) {
+	if (rest) {/// write the rest of the data
 		writeBloc(indexFat, data, rest, indexWriteBloc);
 		FAT[indexFat] = END;
 	}
@@ -152,7 +166,7 @@ unsigned int nextFatFreeIndex (unsigned int currentFatIndex) {
 	if (currentFatIndex < 0 || currentFatIndex >= BLOCNUM) {
 		return -1;
 	}
-	while (index < BLOCNUM && FAT[index] != FREE) {
+	while (index < BLOCNUM && FAT[index] != FREE) {///look what's the next index
 		index++;
 	}
 	return index;
@@ -168,8 +182,8 @@ int writeBloc (unsigned int fatIndex, const char *fullData, unsigned int dataSiz
 	}
 
 	for (index = 0; index < dataSize; index++) {
-		tempByte = fullData[packetNumber * BLOCSIZE + index];
-		volume[fatIndex * BLOCSIZE + index] = tempByte;
+		tempByte = fullData[packetNumber * BLOCSIZE + index];/// get the right byte indication with packetnumber
+		volume[fatIndex * BLOCSIZE + index] = tempByte;/// start the write at the the position indicate with fat index, and write each byte
 	}
 	freeblocks--;
 	return EXIT_SUCCESS;
@@ -180,7 +194,7 @@ void insertObject (struct objet *header, struct objet *newObjet) {
 	struct objet *objetTemp;
 	objetTemp = header;
 	while (objetTemp->next != NULL) {
-		objetTemp = objetTemp->next;
+		objetTemp = objetTemp->next;/// put the adress of ofbject at the last position
 	}
 	objetTemp->next = newObjet;
 }
@@ -195,20 +209,17 @@ int supprimer_objet (char *nom) {
 		return EXIT_FAILURE;
 	}
 
-	objectsList[0]->next = objectsList[1]->next;
+	objectsList[0]->next = objectsList[1]->next; /// make the joint between the object point by the one deleted and the one who point on the one we delete
 
-	nbBlock = (objectsList[1]->taille) / BLOCSIZE + ((objectsList[1]->taille) % BLOCSIZE == 0 ? 0 : 1);
+	nbBlock = (objectsList[1]->taille) / BLOCSIZE + ((objectsList[1]->taille) % BLOCSIZE == 0 ? 0 : 1); /// calculate how many bloc we have to free
 
-	freeFat(objectsList[1]->index);
+	freeFat(objectsList[1]->index); ///free all fat index use by this item
 
 	freeblocks += nbBlock;
 
-	free(objectsList[1]);
+	free(objectsList[1]); /// free our object
 
 	return EXIT_SUCCESS;
-
-
-
 
 }
 
@@ -216,8 +227,7 @@ void freeFat (unsigned int firstIndex) {
 
 	unsigned int indexFat = firstIndex;
 
-	while(FAT[indexFat] != END)
-	{
+	while (FAT[indexFat] != END) { ///look all index point by the first index and free them
 		FAT[indexFat] = FREE;
 		indexFat++;
 	}
@@ -237,8 +247,8 @@ struct objet **getObjects (char *name) {
 			if (!strcmp(objectToDel->nom, name)) {
 				break;
 			}
-			previousObject = objectToDel;
-			objectToDel = objectToDel->next;
+			previousObject = objectToDel;/// initialise the the previous object
+			objectToDel = objectToDel->next; /// get the next index
 		}
 	}
 	else {
@@ -250,12 +260,11 @@ struct objet **getObjects (char *name) {
 		objectL[1] = NULL;
 	}
 	else {
-		objectL[1] = objectToDel;
 		objectL[0] = previousObject;
+		objectL[1] = objectToDel;
 	}
 	return objectL;
 }
-
 
 
 void printObject (struct objet *obj) {
@@ -284,25 +293,28 @@ void supprimer_tout () {
 
 }
 
-void resetFAT()
-{
-	unsigned  int index;
-	for(index = 0 ; index < BLOCNUM ; index++)
-		FAT[index] = FREE;
-}
-void resetVolume()
-{
+void resetFAT () {
+
 	unsigned int index;
-	for(index = 0 ; index < BLOCNUM*BLOCSIZE ; index ++)
-		volume[index] = '\0';
+	for (index = 0; index < BLOCNUM; index++) {
+		FAT[index] = FREE;
+	}
 }
 
-void supprObjectStruc(struct objet *object)
-{
-	if(object ->next == NULL)
+void resetVolume () {
+
+	unsigned int index;
+	for (index = 0; index < BLOCNUM * BLOCSIZE; index++) {
+		volume[index] = '\0';
+	}
+}
+
+void supprObjectStruc (struct objet *object) {
+
+	if (object->next == NULL) {
 		free(object);
-	else
-	{
+	}
+	else {
 		supprObjectStruc(object->next);
 		free(object);
 	}
@@ -332,10 +344,10 @@ int lire_objet (struct objet *objectTR, char **dataOut) {
 	indexFat = objectTR->index;
 
 	for (index = 0; index < numberBloc; index++) {
-		readBloc(indexFat, BLOCSIZE, *dataOut, index);
+		readBloc(indexFat, BLOCSIZE, *dataOut, index);/// read each bloc of data
 		indexFat = FAT[indexFat];
 	}
-	if (rest) {
+	if (rest) {/// get the data in the last bloc if the packet is not full
 		readBloc(indexFat, rest, *dataOut, index);
 	}
 
@@ -350,7 +362,7 @@ int readBloc (unsigned int indexFat, unsigned int size, char *str, unsigned int 
 		fprintf(stderr, "ERROR TO MANY DATA ASK\n");
 		return EXIT_FAILURE;
 	}
-	for (index = 0; index < size; index++) {
+	for (index = 0; index < size; index++) {/// read each byte and write them in our char*
 		str[BLOCSIZE * numberPacket + index] = volume[BLOCSIZE * indexFat + index];
 	}
 	return EXIT_SUCCESS;

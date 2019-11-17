@@ -1,22 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include  <string.h>
 
 
-#define BLOCSIZE 3
+#define BLOCSIZE 512
 #define BLOCNUM 1024
 #define NAMELEN 256
 #define FREE 0xFFFF
 #define END 0xFFFE
 
 
-struct objet {
-	char nom[NAMELEN];
-	unsigned int taille;
-	unsigned short auteur;
-	unsigned short index;
-	struct objet *next;
-};
+/**
+ * structure of ou objectFat
+ * taille correspond to the size of data
+ * index the index of first indexFAT
+ * next point to the next item of the list
+ * auteur who write the data
+ * name of the bloc
+ */
+struct objet;
 
+/**
+ * print all data of an object (take care do not print the data)
+ * @param obj
+ */
 void printObject (struct objet *obj);
 
 /**
@@ -30,16 +37,53 @@ mettre à jour la variable freeblocks
 */
 int creer_objet (char *nom, unsigned short auteur, unsigned int taille, char *data);
 
+/**
+ * write a packet of data depends of dataSize
+ * @param fatIndex the fat index where we write
+ * @param fullData the entire char* of folder
+ * @param dataSize the number of byte you have to write
+ * @param packetNumber: the current nomber packet of data
+ * @return -1 in case of fail 0 else
+ */
 int writeBloc (unsigned int fatIndex, const char *fullData, unsigned int dataSize, unsigned int packetNumber);
 
+/**
+ * Same as writeBloc  but for reading
+ * @param indexFat
+ * @param size num of byte you will read (not higher than blocsize)
+ * @param str the char to put the data
+ * @param numberPacket
+ * @return
+ */
 int readBloc (unsigned int indexFat, unsigned int size, char *str, unsigned int numberPacket);
 
-
+/**
+ * get the next indexFAT free
+ * @param currentFatIndex
+ * @return
+ */
 unsigned int nextFatFreeIndex (unsigned int currentFatIndex);
 
+/**
+ * insert an object to the end of the structur
+ * @param header
+ * @param newObjet
+ */
 void insertObject (struct objet *header, struct objet *newObjet);
 
+/**
+ * initialise the header
+ * @return
+ */
 struct objet *new_object ();
+
+/**
+ * check if an object dont exist
+ * @param nom
+ * @return 1 if not exist 0 else
+ */
+int objectNotExist (char *nom);
+
 
 /**
 \brief Cette fonction permet :
@@ -57,9 +101,6 @@ void initialise_fat ();
 */
 struct objet *rechercher_objet (char *nom);
 
-int objectNotExist (char *nom);
-
-
 /**
 \brief  Cette fonction permet de supprimer un objet trouvé par son nom, de libérer les blocs dans le tableau FAT, et de mettre à jour la variable freeblocks
 \param nom
@@ -76,6 +117,36 @@ De modifier la variable freeblocks
 */
 void supprimer_tout ();
 
+/**
+ * Get a list of object , list size is 2
+ * the first element is the previous object and the next one is the object whith his name passed
+ * @param name
+ * @return list of 2 elements the first element is the previous object and the next one is the object whith his name passed
+ */
+struct objet **getObjects (char *name);
+
+/**
+ * free all index where data was write with the first index
+ * @param firstIndex
+ */
+void freeFat (unsigned int firstIndex);
+
+/**
+ * reformat all fat index to signal them free
+ */
+void resetFAT ();
+
+/**
+ * write all index of volume to \0
+ */
+void resetVolume ();
+
+/**
+ * recursive to free all object tree
+ * @param object
+ */
+void supprObjectStruc (struct objet *object);
+
 /** POUR LES PLUS RAPIDES ..................** BONUS ** BONUS ** BONUS **
 \brief Cette fonction permet :
 De lire le contenu d'un objet et de le copier dans une structure de données allouée dynamiquement
@@ -83,16 +154,4 @@ Attention à la taille !!!!!!!!!!!!!!
 \param nom nom de l'objet
 \return -1 si erreur, 0 sinon.
 */
-
 int lire_objet (struct objet *o, char **data);
-
-struct objet ** getObjects (char *name) ;
-
-void freeFat (unsigned int firstIndex) ;
-
-void resetFAT();
-void resetVolume();
-void supprObjectStruc(struct objet *object);
-
-
-

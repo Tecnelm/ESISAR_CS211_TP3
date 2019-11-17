@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall
 OUT = out
-EXEC = TP2
+EXEC = TP3
 DEBUG = no
 TEST = no
 
@@ -37,8 +37,8 @@ $(OUT)/$(OBJDIR)/%.o: $(SRCDIR)/%.c $(SRCDIR)/%.h
 	@mkdir -p $(OUT)/$(OBJDIR)
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-.PHONY: clean mrproper run
 
+.PHONY: clean mrproper run
 
 clean:
 	@rm -rf $(OUT)/$(OBJDIR)/*.o
