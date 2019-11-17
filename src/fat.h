@@ -1,3 +1,9 @@
+//
+// Created by clement on 11/17/19.
+//
+
+#ifndef ESISAR_CS211_TP3_FAT_H
+#define ESISAR_CS211_TP3_FAT_H
 #include <stdio.h>
 #include <stdlib.h>
 #include  <string.h>
@@ -155,3 +161,5 @@ Attention à la taille !!!!!!!!!!!!!!
 \return -1 si erreur, 0 sinon.
 */
 int lire_objet (struct objet *o, char **data);
+
+#endif //ESISAR_CS211_TP3_FAT_H
