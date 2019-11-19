@@ -7,7 +7,7 @@ car la structure s'auto-r�f�rence!*/
 /* Insertion en "t�te de liste" */
 void insertionTete (Lnode **ph, char item) {
 
-	Lnode *newNode = malloc(sizeof(*newNode));
+	Lnode *newNode = malloc(sizeof(Lnode));
 
 	if (newNode == NULL || ph == NULL) {
 		fprintf(stderr, "Chained list empty");
@@ -23,8 +23,8 @@ void insertionTete (Lnode **ph, char item) {
 /* Insertion en "queue de liste" */
 void insertionQueue (Lnode **ph, char item) {
 
-	Lnode *newNode = malloc(sizeof(*newNode));
-	Lnode *lastNode = malloc(sizeof(*lastNode));
+	Lnode *newNode = malloc(sizeof(Lnode));
+	Lnode *lastNode = malloc(sizeof(Lnode));
 
 	if (newNode == NULL || ph == NULL || lastNode == NULL) {
 		fprintf(stderr, "Chained list empty");
@@ -47,7 +47,7 @@ void insertionQueue (Lnode **ph, char item) {
 /* Suppression en "t�te de liste" */
 void suppressionTete (Lnode **ph) {
 
-	Lnode *firstNode = malloc(sizeof(*firstNode));
+	Lnode *firstNode = malloc(sizeof(Lnode));
 
 	if (firstNode == NULL || ph == NULL) {
 		fprintf(stderr, "Chained list empty");
@@ -65,8 +65,8 @@ void suppressionQueue (Lnode **ph) {
 	int indexBeforeLast;
 	indexBeforeLast = 0;
 
-	Lnode *lastNode = malloc(sizeof(*lastNode));
-	Lnode *beforeLastNode = malloc(sizeof(*beforeLastNode));
+	Lnode *lastNode = malloc(sizeof(Lnode));
+	Lnode *beforeLastNode = malloc(sizeof(Lnode));
 
 	if (lastNode == NULL || ph == NULL || beforeLastNode == NULL) {
 		fprintf(stderr, "Chained list empty");

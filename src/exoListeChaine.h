@@ -4,7 +4,7 @@
 
 typedef struct Node {
 	char data ;
-	struct node *link ;
+	struct Node *link ;
 } Lnode ;
 
 void insertionTete(Lnode **ph, char item);

@@ -285,9 +285,9 @@ void supprimer_tout () {
 
 	freeblocks = BLOCNUM;
 
-	resetFAT();
+	resetFAT();/// set all FAT index to FREE
 
-	resetVolume();
+	resetVolume(); /// reset the volume not needed, we write on each bit \0
 
 	supprObjectStruc(obj);
 
